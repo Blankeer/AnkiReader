@@ -6,6 +6,7 @@ import android.os.Environment;
 
 import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.bean.Note;
+import com.orhanobut.logger.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +15,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by on 2016/10/14.
@@ -110,25 +113,22 @@ public class AnkiManager {
             note.setTags(c.getString(c.getColumnIndex("tags")));
             String flds = c.getString(c.getColumnIndex("flds"));
             String sfld = c.getString(c.getColumnIndex("sfld"));
-            String soundStart = "[sound:";
-            String soundend = ".mp3]";
-            int souStart = sfld.indexOf(soundStart);
-            int souEnd = sfld.lastIndexOf(soundend);
-            if (souEnd < 0 || souStart < 0 || souStart >= souEnd) {
-                continue;
-            }
-            String mediaPath = sfld.substring(souStart + soundStart.length()
-                    , souEnd + soundend.length() - 1).trim();
-            note.setMediaPath(mediaPath);
             flds = flds.substring(sfld.length(), flds.length());
+            Pattern r = Pattern.compile(Config.REG_SOUND);
+            Matcher m = r.matcher(flds);
+            while (m.find()) {
+                String path = m.group(1);
+                Logger.e(path);
+            }
             sfld = sfld.replaceAll("\\[sound:.*\\.mp3\\]", "");
             flds = flds.replaceAll("\\[sound:.*\\.mp3\\]", "");
+
 //            flds=flds.replaceAll("<br.*?>","\n");//把<br>变成回车
 //            flds=flds.replaceAll("<.*?>","");//去掉html标签
             //update 不需要去掉html标签，textview支持显示html，效果更好
-            note.setFront(sfld.trim());
-            note.setBack(flds.trim());
-            notes.add(note);
+//            note.setFront(sfld.trim());
+//            note.setBack(flds.trim());
+//            notes.add(note);
 //            Logger.d(note);
         }
         c.close();

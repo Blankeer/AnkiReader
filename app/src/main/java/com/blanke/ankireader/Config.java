@@ -11,6 +11,7 @@ public class Config {
     public static final String KEY_PLAY_MODE = "KEY_PLAY_MODE";
     public static final String KEY_PLAY_DECK = "KEY_PLAY_DECK";
     public static final String KEY_SHOW_FLOATVIEW = "KEY_SHOW_FLOATVIEW";
+    public static final String REG_SOUND="\\[sound:(.+?)\\]";
 
 
 }
