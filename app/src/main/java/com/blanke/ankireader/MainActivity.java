@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.bu_start) {
             PlayConfig pc = saveData();
             startPlayService(pc);
-            finish();
+//            finish();
         } else if (v.getId() == R.id.bu_stop) {
             Intent intent2 = new Intent(this, PlayerService.class);
             stopService(intent2);

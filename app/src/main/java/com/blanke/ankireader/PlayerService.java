@@ -19,12 +19,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.anbetter.danmuku.DanMuView;
+import com.anbetter.danmuku.model.DanMuModel;
 import com.blanke.ankireader.bean.Note;
 
 import java.util.Collections;
@@ -52,6 +52,7 @@ public class PlayerService extends Service {
     private PlayConfig mPlayConfig;
     private WindowManager windowManager;
     private TextView floatView;
+    private DanMuView danMuView;
 
     @Override
     public void onCreate() {
@@ -309,73 +310,40 @@ public class PlayerService extends Service {
     }
 
     private void setFloatText(String text) {
-        if (floatView != null && mPlayConfig.isShowFloatView) {
-            floatView.setText(Html.fromHtml(text));
+//        if (floatView != null && mPlayConfig.isShowFloatView) {
+//            floatView.setText(Html.fromHtml(text));
+//        }
+        if(danMuView!=null){
+            danMuView.add(getDanmu(text));
         }
+    }
+
+    private DanMuModel getDanmu(String str) {
+        DanMuModel danmu = new DanMuModel();
+        danmu.setDisplayType(DanMuModel.RIGHT_TO_LEFT);
+        danmu.setPriority(DanMuModel.NORMAL);
+        danmu.textSize = 36;
+        danmu.textColor = Color.RED;
+        danmu.text = str;
+        return danmu;
     }
 
     private void addFloatView() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        floatView = new TextView(getApplicationContext());
-        floatView.setTextColor(Color.parseColor("#ffffff"));
-        floatView.setBackgroundColor(Color.parseColor("#77000000"));
-        floatView.setTextSize(17);
-        floatView.setMinWidth(300);
-        floatView.setMinHeight(100);
-        floatView.setMaxHeight(700);
-        floatView.setGravity(Gravity.CENTER);
-        floatView.setPadding(15, 5, 15, 5);
+        danMuView = new DanMuView(getApplicationContext(), null);
+        danMuView.prepare();
+        danMuView.setBackgroundColor(Color.parseColor("#77000000"));
+
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.type = WindowManager.LayoutParams.TYPE_PHONE;
         params.format = PixelFormat.RGBA_8888;
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
         params.x = 0;
         params.y = 0;
-        floatView.setOnTouchListener(new View.OnTouchListener() {
-            float downX, downY;
-            int paramX, paramY;
-            int downCount;
-            long lastDownTime;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-//                Logger.d(event.getAction() + " downCount " + downCount);
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    downX = event.getRawX();
-                    downY = event.getRawY();
-                    paramX = params.x;
-                    paramY = params.y;
-                    downCount++;
-                    long nowTime = System.currentTimeMillis();
-                    if (downCount == 1) {
-                        lastDownTime = nowTime;
-                    } else if (downCount == 2) {//双击事件
-                        if (nowTime - lastDownTime < 600) {
-                            togglePausePlay();
-                            lastDownTime = 0;
-                            downCount = 0;
-                        } else {
-                            downCount = 1;
-                            lastDownTime = nowTime;
-                        }
-                    }
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    float nowX = event.getRawX();
-                    float nowY = event.getRawY();
-                    params.x = (int) (paramX + nowX - downX);
-                    params.y = (int) (paramY + nowY - downY);
-//                    Logger.d("downx " + downX + ",downy=" + downY + ",nowx " + nowX + ",nowy=" + nowY);
-                    if (floatView != null) {
-                        windowManager.updateViewLayout(floatView, params);
-                    }
-                }
-                return false;
-            }
-        });
-        windowManager.addView(floatView, params);
+        windowManager.addView(danMuView, params);
     }
 
     /**
