@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by on 2016/10/14.
@@ -14,27 +16,28 @@ public class Note implements Parcelable {
     private String tags;
     private String front;
     private String back;
-    private String mediaPath;
-    private File media;
-
-    public Note(String back, String front, long id, String mediaPath, String tags) {
-        this.back = back;
-        this.front = front;
-        this.id = id;
-        this.mediaPath = mediaPath;
-        this.tags = tags;
-    }
+    private List<String> mediaPaths;
+    private List<File> medias;
 
     public Note() {
-
+        mediaPaths = new ArrayList<>();
+        medias = new ArrayList<>();
     }
 
-    public File getMedia() {
-        return media;
+    public List<File> getMedias() {
+        return medias;
     }
 
-    public void setMedia(File media) {
-        this.media = media;
+    public void setMedias(List<File> medias) {
+        this.medias = medias;
+    }
+
+    public void addMedia(File media) {
+        this.medias.add(media);
+    }
+
+    public void addMediaPath(String path) {
+        this.mediaPaths.add(path);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class Note implements Parcelable {
                 ", id=" + id +
                 ", tags='" + tags + '\'' +
                 ", front='" + front + '\'' +
-                ", mediaPath='" + mediaPath + '\'' +
+                ", mediaPath='" + mediaPaths + '\'' +
                 '}';
     }
 
@@ -72,12 +75,12 @@ public class Note implements Parcelable {
         this.id = id;
     }
 
-    public String getMediaPath() {
-        return mediaPath;
+    public List<String> getMediaPaths() {
+        return mediaPaths;
     }
 
-    public void setMediaPath(String mediaPath) {
-        this.mediaPath = mediaPath;
+    public void setMediaPaths(List<String> mediaPaths) {
+        this.mediaPaths = mediaPaths;
     }
 
     public String getTags() {
@@ -99,8 +102,8 @@ public class Note implements Parcelable {
         dest.writeString(this.tags);
         dest.writeString(this.front);
         dest.writeString(this.back);
-        dest.writeString(this.mediaPath);
-        dest.writeSerializable(this.media);
+        dest.writeStringList(this.mediaPaths);
+        dest.writeList(this.medias);
     }
 
     protected Note(Parcel in) {
@@ -108,11 +111,12 @@ public class Note implements Parcelable {
         this.tags = in.readString();
         this.front = in.readString();
         this.back = in.readString();
-        this.mediaPath = in.readString();
-        this.media = (File) in.readSerializable();
+        this.mediaPaths = in.createStringArrayList();
+        this.medias = new ArrayList<File>();
+        in.readList(this.medias, File.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
+    public static final Creator<Note> CREATOR = new Creator<Note>() {
         @Override
         public Note createFromParcel(Parcel source) {
             return new Note(source);

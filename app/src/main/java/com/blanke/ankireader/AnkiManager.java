@@ -6,7 +6,6 @@ import android.os.Environment;
 
 import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.bean.Note;
-import com.orhanobut.logger.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,22 +40,27 @@ public class AnkiManager {
     public static List<File> getMediaFile(List<Note> notes) {
         List<File> re = new ArrayList<>();
         for (Note n : notes) {
-            re.add(getMediaFile(n));
+            re.addAll(getMediaFile(n));
         }
         return re;
     }
 
-    public static File getMediaFile(Note note) {
-        String path = ANKI_MEDIA_PATH + note.getMediaPath();
-        File file = new File(path);
-        note.setMedia(file);
-        return file;
+    public static List<File> getMediaFile(Note note) {
+        List<File> res = new ArrayList<>();
+        for (String str : note.getMediaPaths()) {
+            String path = ANKI_MEDIA_PATH + str;
+            File file = new File(path);
+            note.addMedia(file);
+        }
+        return res;
     }
 
     public static List<String> getMediaPath(List<Note> notes) {
         List<String> re = new ArrayList<>();
         for (Note n : notes) {
-            re.add(ANKI_MEDIA_PATH + n.getMediaPath());
+            for (String path : n.getMediaPaths()) {
+                re.add(ANKI_MEDIA_PATH + path);
+            }
         }
         return re;
     }
@@ -111,24 +115,24 @@ public class AnkiManager {
             Note note = new Note();
             note.setId(c.getLong(c.getColumnIndex("id")));
             note.setTags(c.getString(c.getColumnIndex("tags")));
-            String flds = c.getString(c.getColumnIndex("flds"));
-            String sfld = c.getString(c.getColumnIndex("sfld"));
-            flds = flds.substring(sfld.length(), flds.length());
+            String flds = c.getString(c.getColumnIndex("flds"));//front
+            String sfld = c.getString(c.getColumnIndex("sfld"));//front+back
             Pattern r = Pattern.compile(Config.REG_SOUND);
             Matcher m = r.matcher(flds);
             while (m.find()) {
                 String path = m.group(1);
-                Logger.e(path);
+                note.addMediaPath(path);
+//                Logger.e(path);
             }
             sfld = sfld.replaceAll("\\[sound:.*\\.mp3\\]", "");
-            flds = flds.replaceAll("\\[sound:.*\\.mp3\\]", "");
-
+            String back = flds.substring(sfld.length(), flds.length());
+            String front = sfld;
 //            flds=flds.replaceAll("<br.*?>","\n");//把<br>变成回车
 //            flds=flds.replaceAll("<.*?>","");//去掉html标签
             //update 不需要去掉html标签，textview支持显示html，效果更好
-//            note.setFront(sfld.trim());
-//            note.setBack(flds.trim());
-//            notes.add(note);
+            note.setFront(front);
+            note.setBack(back);
+            notes.add(note);
 //            Logger.d(note);
         }
         c.close();
