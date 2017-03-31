@@ -124,9 +124,10 @@ public class AnkiManager {
                 note.addMediaPath(path);
 //                Logger.e(path);
             }
-            sfld = sfld.replaceAll("\\[sound:.*\\.mp3\\]", "");
             String back = flds.substring(sfld.length(), flds.length());
             String front = sfld;
+            back = back.replaceAll(Config.REG_SOUND, "");
+            front = front.replaceAll(Config.REG_SOUND, "");
 //            flds=flds.replaceAll("<br.*?>","\n");//把<br>变成回车
 //            flds=flds.replaceAll("<.*?>","");//去掉html标签
             //update 不需要去掉html标签，textview支持显示html，效果更好
