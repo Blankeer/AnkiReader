@@ -58,8 +58,11 @@ public class AnkiManager {
     public static List<String> getMediaPath(List<Note> notes) {
         List<String> re = new ArrayList<>();
         for (Note n : notes) {
-            for (String path : n.getMediaPaths()) {
-                re.add(ANKI_MEDIA_PATH + path);
+//            for (String path : n.getMediaPaths()) {
+//                re.add(ANKI_MEDIA_PATH + path);
+//            }
+            if (n.getMediaPaths().size() > 0) {//默认添加第一个
+                re.add(ANKI_MEDIA_PATH + n.getMediaPaths().get(0));
             }
         }
         return re;
@@ -98,6 +101,23 @@ public class AnkiManager {
         return decks;
     }
 
+    /**
+     * 获得全部含有音频的 note
+     *
+     * @param deck
+     * @return
+     */
+    public static List<Note> getAllHasMediaNotesByDeck(Deck deck) {
+        List<Note> sources = getNotesByDeck(deck);
+        List<Note> res = new ArrayList<>();
+        for (Note source : sources) {
+            if (source.getMediaPaths().size() > 0) {
+                res.add(source);
+            }
+        }
+        return res;
+    }
+
     public static List<Note> getNotesByDeck(Deck deck) {
         List<Note> notes = new ArrayList<>();
         SQLiteDatabase db = openAnkiDb();
@@ -122,7 +142,6 @@ public class AnkiManager {
             while (m.find()) {
                 String path = m.group(1);
                 note.addMediaPath(path);
-//                Logger.e(path);
             }
             String back = flds.substring(sfld.length(), flds.length());
             String front = sfld;

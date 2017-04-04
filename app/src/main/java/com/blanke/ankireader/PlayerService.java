@@ -155,7 +155,7 @@ public class PlayerService extends Service {
     }
 
     private void initConfig() {
-        notes = AnkiManager.getNotesByDeck(mPlayConfig.playDeck);
+        notes = AnkiManager.getAllHasMediaNotesByDeck(mPlayConfig.playDeck);
 //        Logger.d(notes);
         if (notes.size() == 0) {
             Toast.makeText(this, "并没有东西让我播放", Toast.LENGTH_SHORT).show();
