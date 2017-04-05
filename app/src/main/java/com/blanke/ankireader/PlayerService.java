@@ -174,6 +174,9 @@ public class PlayerService extends Service {
         playSleepTime = mPlayConfig.playSleepTime;
         playMode = mPlayConfig.playMode;
         current = 0;
+        if (playMode == 1) {//随机
+            current = getRandomIndex(mp3Paths.size());
+        }
         currentMusicpath = mp3Paths.get(current);
         isStartLoopRead = false;
         currentMusicLoopCount = 0;
@@ -192,8 +195,8 @@ public class PlayerService extends Service {
         if (action != null) {
             if (action.equals(TOGGLE_LOOP_READ)) {//自定义
                 togglePausePlay();
-            }else if(action.equals(ACTION_STOP)){
-                if(isStartLoopRead){
+            } else if (action.equals(ACTION_STOP)) {
+                if (isStartLoopRead) {
                     togglePausePlay();
                 }
             }
