@@ -12,6 +12,8 @@ import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -189,4 +191,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_main_about:
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
 }
