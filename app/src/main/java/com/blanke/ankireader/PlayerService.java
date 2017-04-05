@@ -315,7 +315,7 @@ public class PlayerService extends Service {
         floatView.setTextSize(17);
         floatView.setMinWidth(300);
         floatView.setMinHeight(100);
-        floatView.setMaxHeight(500);
+        floatView.setMaxHeight(700);
         floatView.setGravity(Gravity.CENTER);
         floatView.setPadding(15, 5, 15, 5);
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
