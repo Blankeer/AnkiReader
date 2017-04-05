@@ -85,7 +85,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void prepareLoadData() {
-        decks = AnkiManager.getAllDecks();
+        try {
+            decks = AnkiManager.getAllDecks();
+        }catch (Exception e){
+            Toast.makeText(this, "没有识别到 anki 数据库 = =", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (decks == null || decks.size() == 0) {
+            Toast.makeText(this, "牌组为空...", Toast.LENGTH_LONG).show();
+        }
         List<String> deckLists = new ArrayList<>();
         deckLists.add("全部卡牌");
         for (Deck d : decks) {
