@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void prepareLoadData() {
         try {
             decks = AnkiManager.getAllDecks();
-        }catch (Exception e){
+        } catch (Exception e) {
             Toast.makeText(this, "没有识别到 anki 数据库 = =", Toast.LENGTH_LONG).show();
             return;
         }
@@ -137,9 +137,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private PlayConfig saveData() {
         String loopCountStr = editLoopcount.getText().toString().trim();
-        int loopCount = Integer.parseInt(loopCountStr);
         String sleepStr = editSleep.getText().toString().trim();
-        int sleep = Integer.parseInt(sleepStr);
+        int loopCount = 1;
+        int sleep = 700;
+        try {
+            loopCount = Integer.parseInt(loopCountStr);
+            sleep = Integer.parseInt(sleepStr);
+        } catch (NumberFormatException e) {
+            //ignore
+        }
         boolean isShowFloat = switchShowfloatview.isChecked();
         mPlayConfig.playCount = loopCount;
         mPlayConfig.playSleepTime = sleep;
