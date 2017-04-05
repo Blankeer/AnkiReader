@@ -34,6 +34,7 @@ import java.util.Random;
 
 public class PlayerService extends Service {
     public static final String TOGGLE_LOOP_READ = 9 + "";
+    public static final String ACTION_STOP = 10 + "";
     private static final int NOTIFICATION_ID = 100;
     private MediaPlayer mediaPlayer; // 媒体播放器对象
     private String currentMusicpath;            // 音乐文件路径
@@ -133,7 +134,10 @@ public class PlayerService extends Service {
             playPauseIcon = R.mipmap.pause;
             info = "暂停";
         }
+        String stopText = "停止";
+        PendingIntent mStopIntent = getIntent(ACTION_STOP);
         builder.addAction(playPauseIcon, info, mPlayPauseIntent);
+        builder.addAction(R.mipmap.stop, stopText, mStopIntent);
         builder.setContentIntent(getContentIntent());
         return builder.build();
     }
@@ -188,6 +192,10 @@ public class PlayerService extends Service {
         if (action != null) {
             if (action.equals(TOGGLE_LOOP_READ)) {//自定义
                 togglePausePlay();
+            }else if(action.equals(ACTION_STOP)){
+                if(isStartLoopRead){
+                    togglePausePlay();
+                }
             }
         } else {//第一次进来初始化
             PlayConfig pc = (PlayConfig) intent.getSerializableExtra("config");
