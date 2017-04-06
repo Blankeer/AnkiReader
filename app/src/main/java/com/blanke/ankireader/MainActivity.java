@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.utils.ObjectUtils;
-import com.blanke.xsocket.utils.XSocketLog;
 import com.mylhyl.acp.Acp;
 import com.mylhyl.acp.AcpListener;
 import com.mylhyl.acp.AcpOptions;
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        XSocketLog.debug(true);
+//        XSocketLog.debug(true);
         editLoopcount = (EditText) findViewById(R.id.edit_loopcount);
         editSleep = (EditText) findViewById(R.id.edit_sleep);
         spinnerPlaydeck = (AppCompatSpinner) findViewById(R.id.spinner_playdeck);

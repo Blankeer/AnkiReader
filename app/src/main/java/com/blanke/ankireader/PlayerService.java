@@ -26,8 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Note;
-import com.blanke.xsocket.tcp.client.XTcpClient;
-import com.blanke.xsocket.tcp.client.bean.TargetInfo;
 
 import java.util.List;
 import java.util.Random;
@@ -105,9 +103,9 @@ public class PlayerService extends Service {
 //            xudp.sendMsg(new UdpMsg(msg,
 //                    new TargetInfo("255.255.255.255", 6788), TcpMsg.MsgType.Send));
             if (mPlayConfig.tcpPort > 0) {
-                XTcpClient xtcp = XTcpClient.getTcpClient(
-                        new TargetInfo(mPlayConfig.tcpIp, mPlayConfig.tcpPort));
-                xtcp.sendMsg(msg);
+//                XTcpClient xtcp = XTcpClient.getTcpClient(
+//                        new TargetInfo(mPlayConfig.tcpIp, mPlayConfig.tcpPort));
+//                xtcp.sendMsg(msg);
             }
 
         }
