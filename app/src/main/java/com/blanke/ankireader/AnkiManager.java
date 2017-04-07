@@ -34,7 +34,7 @@ public class AnkiManager {
     }
 
     public static List<Note> getAllNotes() {
-        return getNotesByDeck(null);
+        return getNotesByDeck(-1);
     }
 
     public static List<File> getMediaFile(List<Note> notes) {
@@ -104,11 +104,11 @@ public class AnkiManager {
     /**
      * 获得全部含有音频的 note
      *
-     * @param deck
+     * @param deckId
      * @return
      */
-    public static List<Note> getAllHasMediaNotesByDeck(Deck deck) {
-        List<Note> sources = getNotesByDeck(deck);
+    public static List<Note> getAllHasMediaNotesByDeckId(long deckId) {
+        List<Note> sources = getNotesByDeck(deckId);
         List<Note> res = new ArrayList<>();
         for (Note source : sources) {
             if (source.getMediaPaths().size() > 0) {
@@ -118,16 +118,16 @@ public class AnkiManager {
         return res;
     }
 
-    public static List<Note> getNotesByDeck(Deck deck) {
+    public static List<Note> getNotesByDeck(long deckId) {
         List<Note> notes = new ArrayList<>();
         SQLiteDatabase db = openAnkiDb();
         if (db == null) {
             return null;
         }
         String sql = "select * from " + TABLE_NOTES;
-        if (deck != null) {
+        if (deckId != -1) {
             sql = "select n.id,n.tags, flds, sfld" +
-                    " from notes as n, cards as c where c.nid=n.id  and c.did=" + deck.getId()
+                    " from notes as n, cards as c where c.nid=n.id  and c.did=" + deckId
                     + " order by n.id desc";
         }
         Cursor c = db.rawQuery(sql, null);

@@ -22,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Deck;
-import com.blanke.ankireader.utils.ObjectUtils;
 import com.mylhyl.acp.Acp;
 import com.mylhyl.acp.AcpListener;
 import com.mylhyl.acp.AcpOptions;
@@ -131,19 +130,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadData() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String str = sp.getString(Config.KEY_PLAY_CONFIG, "");
-        if (!TextUtils.isEmpty(str)) {
-            mPlayConfig = new ObjectUtils<PlayConfig>().getSerialData(str);
-        } else {
-            mPlayConfig = new PlayConfig();
-        }
+        mPlayConfig = new PlayConfig().load(sp);
         editLoopcount.setText(mPlayConfig.playCount + "");
         editSleep.setText(mPlayConfig.playSleepTime + "");
         spinnerPlaymode.setSelection(mPlayConfig.playMode);
         mScLoopDesc.setChecked(mPlayConfig.isLoopDesc);
-        if (mPlayConfig.playDeck != null) {
+        if (mPlayConfig.deckId != -1) {
             for (int i = 0; i < decks.size(); i++) {
-                if (mPlayConfig.playDeck.equals(decks.get(i))) {
+                if (mPlayConfig.deckId == decks.get(i).getId()) {
                     spinnerPlaydeck.setSelection(i + 1);
                     break;
                 }
@@ -171,9 +165,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPlayConfig.playSleepTime = sleep;
         int deckPosition = spinnerPlaydeck.getSelectedItemPosition();
         if (deckPosition == 0) {
-            mPlayConfig.playDeck = null;
+            mPlayConfig.deckId = -1;
         } else {
-            mPlayConfig.playDeck = decks.get(deckPosition - 1);
+            mPlayConfig.deckId = decks.get(deckPosition - 1).getId();
+            Logger.d("deckId=" + mPlayConfig.deckId);
         }
         mPlayConfig.playMode = spinnerPlaymode.getSelectedItemPosition();
         mPlayConfig.isShowFloatView = isShowFloat;
@@ -192,10 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(Config.KEY_PLAY_CONFIG,
-                new ObjectUtils<PlayConfig>().getSerialString(mPlayConfig));
-        editor.commit();
+        mPlayConfig.save(sp);
         Logger.d("saveConfig=" + mPlayConfig);
         return mPlayConfig;
     }
