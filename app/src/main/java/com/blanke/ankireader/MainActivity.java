@@ -15,8 +15,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Deck;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AppCompatButton buStop;
     private SwitchCompat switchShowfloatview;
     private AppCompatEditText editTcpIp;
+    private LinearLayout mLLLoopDesc;
+    private SwitchCompat mScLoopDesc;
     private PlayConfig mPlayConfig;
 
     @Override
@@ -56,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editTcpIp = (AppCompatEditText) findViewById(R.id.edit_tcp_ip);
         buStart = (AppCompatButton) findViewById(R.id.bu_start);
         buStop = (AppCompatButton) findViewById(R.id.bu_stop);
+        mLLLoopDesc = (LinearLayout) findViewById(R.id.ll_loop_desc);
+        mScLoopDesc = (SwitchCompat) findViewById(R.id.switch_loop_desc);
 
         buStart.setOnClickListener(this);
         buStop.setOnClickListener(this);
@@ -63,7 +69,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         spinnerPlaydeck.setAdapter(spinnerDeckAdapter);
         spinnerPlaymode.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1
                 , new String[]{"循环播放", "随机播放"}));
+        spinnerPlaymode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {//循环
+                    mLLLoopDesc.setVisibility(View.VISIBLE);
+                } else {
+                    mLLLoopDesc.setVisibility(View.GONE);
+                }
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         Acp.getInstance(this).request(new AcpOptions.Builder()
                         .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -120,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editLoopcount.setText(mPlayConfig.playCount + "");
         editSleep.setText(mPlayConfig.playSleepTime + "");
         spinnerPlaymode.setSelection(mPlayConfig.playMode);
+        mScLoopDesc.setChecked(mPlayConfig.isLoopDesc);
         if (mPlayConfig.playDeck != null) {
             for (int i = 0; i < decks.size(); i++) {
                 if (mPlayConfig.playDeck.equals(decks.get(i))) {
@@ -156,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mPlayConfig.playMode = spinnerPlaymode.getSelectedItemPosition();
         mPlayConfig.isShowFloatView = isShowFloat;
+        mPlayConfig.isLoopDesc = mScLoopDesc.isChecked();
         String ipPort = editTcpIp.getText().toString().trim();
         if (!TextUtils.isEmpty(ipPort)) {
             String temp[] = ipPort.split(":");

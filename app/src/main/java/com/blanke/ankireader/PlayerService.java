@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Note;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -174,6 +175,10 @@ public class PlayerService extends Service {
         current = 0;
         if (playMode == 1) {//随机
             current = getRandomIndex(mp3Paths.size());
+        } else if (playMode == 0) {//循环
+            if (mPlayConfig.isLoopDesc) {
+                Collections.reverse(notes);
+            }
         }
         currentMusicpath = mp3Paths.get(current);
         isStartLoopRead = false;

@@ -16,6 +16,7 @@ public class PlayConfig implements Serializable {
     public boolean isShowFloatView = true;//显示悬浮窗
     public String tcpIp = "";
     public int tcpPort = 0;
+    public boolean isLoopDesc=false;
 
     public PlayConfig() {
     }
