@@ -289,6 +289,10 @@ public class PlayerService extends Service {
             windowManager.removeView(floatView);
             floatView = null;
         }
+        if (danMuView != null) {
+            windowManager.removeView(danMuView);
+            danMuView = null;
+        }
     }
 
     private void showFloatView() {
@@ -310,10 +314,10 @@ public class PlayerService extends Service {
     }
 
     private void setFloatText(String text) {
-//        if (floatView != null && mPlayConfig.isShowFloatView) {
-//            floatView.setText(Html.fromHtml(text));
-//        }
-        if(danMuView!=null){
+        if (floatView != null && mPlayConfig.isShowFloatView) {
+            floatView.setText(Html.fromHtml(text));
+        }
+        if (danMuView != null) {
             danMuView.add(getDanmu(text));
         }
     }
@@ -328,6 +332,31 @@ public class PlayerService extends Service {
         return danmu;
     }
 
+    private void addFloatView2() {
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        floatView = new TextView(getApplicationContext());
+        floatView.setTextColor(Color.parseColor("#ffffff"));
+        floatView.setBackgroundColor(Color.parseColor("#77000000"));
+        floatView.setTextSize(17);
+        floatView.setMinWidth(300);
+        floatView.setMinHeight(100);
+        floatView.setMaxHeight(500);
+        floatView.setGravity(Gravity.CENTER);
+        floatView.setPadding(15, 5, 15, 5);
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.type = WindowManager.LayoutParams.TYPE_PHONE;
+        params.format = PixelFormat.RGBA_8888;
+        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        params.x = 0;
+        params.y = 0;
+
+        windowManager.addView(floatView, params);
+    }
+
     private void addFloatView() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         danMuView = new DanMuView(getApplicationContext(), null);
@@ -338,7 +367,8 @@ public class PlayerService extends Service {
         params.type = WindowManager.LayoutParams.TYPE_PHONE;
         params.format = PixelFormat.RGBA_8888;
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-//        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
         params.height = WindowManager.LayoutParams.MATCH_PARENT;
         params.x = 0;
