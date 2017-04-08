@@ -168,17 +168,18 @@ public class PlayerService extends Service {
             stopSelf();
             return;
         }
-        mp3Paths = AnkiManager.getMediaPath(notes);
         playLoopCount = mPlayConfig.playCount;
         playSleepTime = mPlayConfig.playSleepTime;
         playMode = mPlayConfig.playMode;
         current = 0;
         if (playMode == 1) {//随机
+            mp3Paths = AnkiManager.getMediaPath(notes);
             current = getRandomIndex(mp3Paths.size());
         } else if (playMode == 0) {//循环
             if (mPlayConfig.isLoopDesc) {
                 Collections.reverse(notes);
             }
+            mp3Paths = AnkiManager.getMediaPath(notes);
         }
         currentMusicpath = mp3Paths.get(current);
         isStartLoopRead = false;
