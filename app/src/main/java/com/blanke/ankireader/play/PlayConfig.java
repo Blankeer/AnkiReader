@@ -1,6 +1,8 @@
-package com.blanke.ankireader;
+package com.blanke.ankireader.play;
 
 import android.content.SharedPreferences;
+
+import com.blanke.ankireader.Config;
 
 import java.io.Serializable;
 

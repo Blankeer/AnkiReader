@@ -1,4 +1,4 @@
-package com.blanke.ankireader;
+package com.blanke.ankireader.ui;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import com.blanke.ankireader.R;
 
 /**
  * Created by blanke on 2017/4/5.

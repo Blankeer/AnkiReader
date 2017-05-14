@@ -1,4 +1,4 @@
-package com.blanke.ankireader;
+package com.blanke.ankireader.play;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -25,7 +25,10 @@ import android.widget.Toast;
 
 import com.anbetter.danmuku.DanMuView;
 import com.anbetter.danmuku.model.DanMuModel;
+import com.blanke.ankireader.R;
 import com.blanke.ankireader.bean.Note;
+import com.blanke.ankireader.data.AnkiManager;
+import com.blanke.ankireader.ui.MainActivity;
 
 import java.util.Collections;
 import java.util.List;
@@ -328,7 +331,7 @@ public class PlayerService extends Service {
         danmu.setPriority(DanMuModel.NORMAL);
         danmu.textSize = 36;
         danmu.textColor = Color.RED;
-        danmu.text = str;
+        danmu.text = Html.fromHtml(str);
         return danmu;
     }
 
@@ -361,7 +364,7 @@ public class PlayerService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         danMuView = new DanMuView(getApplicationContext(), null);
         danMuView.prepare();
-        danMuView.setBackgroundColor(Color.parseColor("#77000000"));
+        danMuView.setBackgroundColor(Color.parseColor("#11000000"));
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.type = WindowManager.LayoutParams.TYPE_PHONE;

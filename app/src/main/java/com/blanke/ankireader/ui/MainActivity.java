@@ -1,4 +1,4 @@
-package com.blanke.ankireader;
+package com.blanke.ankireader.ui;
 
 import android.Manifest;
 import android.content.Intent;
@@ -21,6 +21,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.blanke.ankireader.data.AnkiManager;
+import com.blanke.ankireader.play.PlayConfig;
+import com.blanke.ankireader.play.PlayerService;
+import com.blanke.ankireader.R;
 import com.blanke.ankireader.bean.Deck;
 import com.mylhyl.acp.Acp;
 import com.mylhyl.acp.AcpListener;

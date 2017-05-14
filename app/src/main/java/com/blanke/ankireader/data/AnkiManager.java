@@ -1,9 +1,10 @@
-package com.blanke.ankireader;
+package com.blanke.ankireader.data;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
+import com.blanke.ankireader.Config;
 import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.bean.Note;
 
