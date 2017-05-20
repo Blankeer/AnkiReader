@@ -1,284 +1,238 @@
 package com.blanke.ankireader.play;
 
-import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnPreparedListener;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v7.app.NotificationCompat;
-import android.text.Html;
-import android.view.Gravity;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.anbetter.danmuku.DanMuView;
-import com.anbetter.danmuku.model.DanMuModel;
-import com.blanke.ankireader.R;
 import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.data.AnkiManager;
-import com.blanke.ankireader.ui.MainActivity;
+import com.blanke.ankireader.play.float_text.FloatTextPlayHelper;
+import com.blanke.ankireader.play.float_text.view.BaseFloatView;
+import com.blanke.ankireader.play.float_text.view.DanmuFloatView;
+import com.blanke.ankireader.play.float_text.view.TextFloatView;
+import com.blanke.ankireader.play.music.MusicPlayHelper;
+import com.blanke.ankireader.play.notify.NotificationPlayHelper;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
+
 public class PlayerService extends Service {
-    public static final String TOGGLE_LOOP_READ = 9 + "";
-    public static final String ACTION_STOP = 10 + "";
-    private static final int NOTIFICATION_ID = 100;
-    private MediaPlayer mediaPlayer; // 媒体播放器对象
-    private String currentMusicpath;            // 音乐文件路径
-    private String action;
-    private boolean isPause = true;        // 暂停状态
-    private int current = 0;        // 记录当前正在播放的音乐
-    private List<String> mp3Paths;    //存放Mp3Info对象的集合
-    private int status = 5;            //播放状态，默认为自定义
-    private int playLoopCount;//循环播放次数
-    private int playSleepTime;//播放间隔时间，毫秒
-    private int playMode;//播放模式
-    private int currentMusicLoopCount = 0;//当前歌曲循环的次数
-    private List<Note> notes;
-    private boolean isStartLoopRead = false;
-    private Handler delayedPlayhandler;
+    public enum PlayState {
+        NORMAL,
+        PLAYING,
+        PAUSED,
+    }
+
+    public static final String ACTION_TOGGLE_PLAY_PAUSE = "1";
+    public static final String ACTION_EXIT = "2";
     private PlayConfig mPlayConfig;
-    private WindowManager windowManager;
-    private TextView floatView;
-    private DanMuView danMuView;
+    private List<BasePlayHelper> playHelpersConsumer = new ArrayList<>();//按照顺序进行消费
+    private PlayState currentState = PlayState.NORMAL;
+
+    private MusicPlayHelper musicPlayHelper;
+    private NotificationPlayHelper notificationPlayHelper;
+    private FloatTextPlayHelper floatTextPlayHelper;
+    private Handler handler;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mediaPlayer = new MediaPlayer();
-        delayedPlayhandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                play(0);
-            }
-        };
-        mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
-
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                if (isPause) {
-                    return;
-                }
-                if (status == 5) {//自定义播放
-//                    Logger.d("current " + currentMusicpath + "," + "currentMusicLoopCount=" + currentMusicLoopCount);
-                    if (currentMusicLoopCount < playLoopCount - 1) {
-                        currentMusicLoopCount++;
-                    } else {
-                        currentMusicLoopCount = 0;
-                        if (playMode == 0) {
-                            current = (current + 1) % mp3Paths.size();
-                        } else {
-                            current = getRandomIndex(mp3Paths.size());
-                        }
-                        currentMusicpath = mp3Paths.get(current);
-                    }
-                    delayedPlayhandler.sendEmptyMessageDelayed(1, playSleepTime);
-                }
-            }
-        });
+        handler = new Handler();
     }
 
-    private void sendNotification() {
-        String title = "title";
-        String content = "content";
-        if (current < 0 || notes == null || notes.size() <= current) {
-//            return;
-        } else {
-            Note note = notes.get(current);
-            content = note.getBack();
-            title = note.getFront();
-            String msg = title + " : " + content + "\n";
-//            Logger.d("send udp " + title);
-//            XUdp xudp = XUdp.getUdpClient();
-//            xudp.sendMsg(new UdpMsg(msg,
-//                    new TargetInfo("255.255.255.255", 6788), TcpMsg.MsgType.Send));
-            if (mPlayConfig.tcpPort > 0) {
-//                XTcpClient xtcp = XTcpClient.getTcpClient(
-//                        new TargetInfo(mPlayConfig.tcpIp, mPlayConfig.tcpPort));
-//                xtcp.sendMsg(msg);
-            }
-
-        }
-        setFloatText("<big><i><b>" + title + "</b></i></big><br/>" + content);
-        startForeground(NOTIFICATION_ID, getBigTextNotify(title, content));
-    }
-
-    private Notification getBigTextNotify(CharSequence title, CharSequence content) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(title);
-        builder.setContentText(content);
-        builder.setSmallIcon(R.mipmap.speakers);
-        android.support.v4.app.NotificationCompat.BigTextStyle style = new android.support.v4.app.NotificationCompat.BigTextStyle();
-        style.bigText(Html.fromHtml(String.valueOf(content)));
-        style.setBigContentTitle(title);
-        builder.setStyle(style);
-        builder.setAutoCancel(false);
-        builder.setOngoing(true);
-        builder.setShowWhen(false);
-        PendingIntent mPlayPauseIntent = getIntent(TOGGLE_LOOP_READ);
-        int playPauseIcon = R.mipmap.play;
-        String info = "开始";
-        if (isStartLoopRead) {
-            playPauseIcon = R.mipmap.pause;
-            info = "暂停";
-        }
-        String stopText = "停止";
-        PendingIntent mStopIntent = getIntent(ACTION_STOP);
-        builder.addAction(playPauseIcon, info, mPlayPauseIntent);
-        builder.addAction(R.mipmap.stop, stopText, mStopIntent);
-        builder.setContentIntent(getContentIntent());
-        return builder.build();
-    }
-
-    private PendingIntent getContentIntent() {
-        final Intent contentIntent = new Intent(this, MainActivity.class);
-        return PendingIntent.getActivity(this, 0, contentIntent, 0);
-    }
-
-    private PendingIntent getIntent(String action) {
-        final Intent intent = new Intent(this, PlayerService.class);
-        intent.setAction(action);
-        return PendingIntent.getService(getApplicationContext(), 0, intent, 0);
-    }
-
-    protected int getRandomIndex(int end) {
-        int index = new Random().nextInt(end);
-        return index;
-    }
-
-    private void initConfig() {
-        notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.deckId);
-//        Logger.d(notes);
-        if (notes.size() == 0) {
-            Toast.makeText(this, "并没有东西让我播放", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            stopSelf();
-            return;
-        }
-        playLoopCount = mPlayConfig.playCount;
-        playSleepTime = mPlayConfig.playSleepTime;
-        playMode = mPlayConfig.playMode;
-        current = 0;
-        if (playMode == 1) {//随机
-            mp3Paths = AnkiManager.getMediaPath(notes);
-            current = getRandomIndex(mp3Paths.size());
-        } else if (playMode == 0) {//循环
-            if (mPlayConfig.isLoopDesc) {
-                Collections.reverse(notes);
-            }
-            mp3Paths = AnkiManager.getMediaPath(notes);
-        }
-        currentMusicpath = mp3Paths.get(current);
-        isStartLoopRead = false;
-        currentMusicLoopCount = 0;
-        if (mPlayConfig.isShowFloatView) {
-            showFloatView();
-        } else {
-            removeFloatView();
-        }
-        togglePausePlay();
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        action = intent.getAction();            //播放信息
+        String action = intent.getAction();            //播放信息
         if (action != null) {
-            if (action.equals(TOGGLE_LOOP_READ)) {//自定义
-                togglePausePlay();
-            } else if (action.equals(ACTION_STOP)) {
-                if (isStartLoopRead) {
-                    togglePausePlay();
-                }
+            if (action.equals(ACTION_TOGGLE_PLAY_PAUSE)) {//toggle
+                toggle();
+            } else if (action.equals(ACTION_EXIT)) {
+                this.stopSelf();
             }
-        } else {//第一次进来初始化
+        } else {//first init
             PlayConfig pc = (PlayConfig) intent.getSerializableExtra("config");
             if (pc != null) {
                 mPlayConfig = pc;
-//                pause();
-                delayedPlayhandler.removeMessages(1);
-                initConfig();
-            } else {
-                if (mPlayConfig == null) {
-                    mPlayConfig = new PlayConfig();
-                }
+                destroyPlayHelpers();
+                initPlayHelpers();
+                play();
             }
         }
-//        Logger.d("onStartCommand  " + action);
-        sendNotification();
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void togglePausePlay() {
-        isStartLoopRead = !isStartLoopRead;
-        sendNotification();
-        if (!isStartLoopRead) {//pause
+    private void initPlayHelpers() {
+        playHelpersConsumer = new ArrayList<>();
+        if (mPlayConfig.isShowNotification) {
+            notificationPlayHelper = NotificationPlayHelper.getInstance(this);
+            notificationPlayHelper.setPlayConfig(mPlayConfig);
+            playHelpersConsumer.add(notificationPlayHelper);
+        }
+        if (mPlayConfig.isShowFloatView) {
+            floatTextPlayHelper = FloatTextPlayHelper.getInstance(this);
+            BaseFloatView floatView = new DanmuFloatView(this);
+            floatView.setConfig(mPlayConfig);
+            if (mPlayConfig.floatStyleCommon) {
+                floatView = new TextFloatView(this);
+            }
+            floatTextPlayHelper.setFloatView(floatView);
+            playHelpersConsumer.add(floatTextPlayHelper);
+        }
+        if (mPlayConfig.isPlay) {
+            musicPlayHelper = MusicPlayHelper.getInstance(this);
+            musicPlayHelper.setPlayConfig(mPlayConfig);
+            playHelpersConsumer.add(musicPlayHelper);
+        }
+    }
+
+    private void toggle() {
+        if (currentState == PlayState.NORMAL ||
+                currentState == PlayState.PAUSED) {
+            play();
+        } else if (currentState == PlayState.PLAYING) {
             pause();
-            delayedPlayhandler.removeMessages(1);
-            removeFloatView();
-        } else {//play
-            currentMusicLoopCount = 0;
-            showFloatView();
-            play(0);
         }
     }
 
     /**
      * 播放音乐
      */
-    private void play(int currentTime) {
-        if (!isStartLoopRead) {
+    private void play() {
+        if (currentState == PlayState.PLAYING) {
             return;
         }
-//        Logger.d("currentMusic=" + currentMusicpath);
-        sendNotification();
-        isPause = false;
-        try {
-            mediaPlayer.reset();// 把各项参数恢复到初始状态
-            mediaPlayer.setDataSource(currentMusicpath);
-            mediaPlayer.prepare(); // 进行缓冲
-            mediaPlayer.setOnPreparedListener(new PreparedListener(currentTime));// 注册一个监听器
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        currentState = PlayState.PLAYING;
+        Observable.create(new ObservableOnSubscribe<Note>() {
+
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<Note> e) throws Exception {
+                List<Note> notes = null;
+                if (mPlayConfig.isPlay) {
+                    notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.deckId);
+                } else {
+                    notes = AnkiManager.getNotesByDeckId(mPlayConfig.deckId);
+                }
+                if (notes.size() == 0) {
+                    throw new IllegalArgumentException("牌组识别为空!");
+                }
+//                Logger.d("start emit ");
+                int i = getNextIndex(mPlayConfig.isLoopDesc ? notes.size() : -1,
+                        notes.size());
+                while (currentState == PlayState.PLAYING) {
+                    for (int j = 0; j < mPlayConfig.playCount; j++) {//循环 x 次
+                        Note note = notes.get(i);
+                        e.onNext(note);
+                        Thread.sleep(mPlayConfig.playSleepTime);
+                    }
+                    i = getNextIndex(i, notes.size());
+                }
+            }
+
+            private int getNextIndex(int i, int count) {
+                if (mPlayConfig.playMode == PlayConfig.PlayMode.LOOP) {//循环
+                    if (mPlayConfig.isLoopDesc) {
+                        return (i - 1) % count;
+                    }
+                    return (i + 1) % count;
+                } else if (mPlayConfig.playMode == PlayConfig.PlayMode.RANDOM) {//随机
+                    return getRandomIndex(count);
+                }
+                return (i + 1) % count;
+            }
+        }).subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.trampoline())//在上一个默认线程 newThread run
+                .subscribe(new Consumer<Note>() {
+                    @Override
+                    public void accept(@NonNull Note note) throws Exception {
+                        consumPlayHelper(note);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull final Throwable throwable) throws Exception {
+                        throwable.printStackTrace();
+                        stopPlayHelpers();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                StackTraceElement trace = throwable.getStackTrace()[0];
+                                Toast.makeText(PlayerService.this, "发生了一个错误,错误详情(可以截图反馈到酷安):"
+                                                + "\n" + throwable.getMessage() + ":\n"
+                                                + trace.getClassName() + ":" + trace.getLineNumber(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
     }
+
 
     /**
      * 暂停音乐
      */
     private void pause() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            isPause = true;
-        }
-        sendNotification();
+        currentState = PlayState.PAUSED;
+        pausePlayHelpers();
     }
 
     @Override
     public void onDestroy() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
+        currentState = PlayState.NORMAL;
+        destroyPlayHelpers();
+    }
+
+    /**
+     * 按照顺序进行消费
+     *
+     * @param note
+     * @throws Exception
+     */
+    private void consumPlayHelper(Note note) throws Exception {
+        for (BasePlayHelper basePlayHelper : playHelpersConsumer) {
+            basePlayHelper.play(note);
         }
-        removeFloatView();
+    }
+
+    /**
+     * 按照顺序进行销毁
+     */
+    private void destroyPlayHelpers() {
+        for (BasePlayHelper basePlayHelper : playHelpersConsumer) {
+            basePlayHelper.destroy();
+        }
+    }
+
+    /**
+     * 按照顺序进行pause
+     */
+    private void pausePlayHelpers() {
+        for (BasePlayHelper basePlayHelper : playHelpersConsumer) {
+            basePlayHelper.pause();
+        }
+    }
+
+    /**
+     * 按照顺序进行stop
+     */
+    private void stopPlayHelpers() {
+        for (BasePlayHelper basePlayHelper : playHelpersConsumer) {
+            basePlayHelper.stop();
+        }
+    }
+
+    public PlayState getCurrentState() {
+        return currentState;
     }
 
     @Nullable
@@ -287,118 +241,7 @@ public class PlayerService extends Service {
         return null;
     }
 
-    private void removeFloatView() {
-        if (floatView != null) {
-            windowManager.removeView(floatView);
-            floatView = null;
-        }
-        if (danMuView != null) {
-            windowManager.removeView(danMuView);
-            danMuView = null;
-        }
+    private int getRandomIndex(int end) {
+        return new Random().nextInt(end);
     }
-
-    private void showFloatView() {
-        if (floatView != null || !mPlayConfig.isShowFloatView) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (Settings.canDrawOverlays(getApplicationContext())) {
-                addFloatView();
-            } else {
-                Toast.makeText(this, "请在设置中授予悬浮窗权限，重新播放", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-        } else {
-            addFloatView();
-        }
-    }
-
-    private void setFloatText(String text) {
-        if (floatView != null && mPlayConfig.isShowFloatView) {
-            floatView.setText(Html.fromHtml(text));
-        }
-        if (danMuView != null) {
-            danMuView.add(getDanmu(text));
-        }
-    }
-
-    private DanMuModel getDanmu(String str) {
-        DanMuModel danmu = new DanMuModel();
-        danmu.setDisplayType(DanMuModel.RIGHT_TO_LEFT);
-        danmu.setPriority(DanMuModel.NORMAL);
-        danmu.textSize = 36;
-        danmu.textColor = Color.RED;
-        danmu.text = Html.fromHtml(str);
-        return danmu;
-    }
-
-    private void addFloatView2() {
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        floatView = new TextView(getApplicationContext());
-        floatView.setTextColor(Color.parseColor("#ffffff"));
-        floatView.setBackgroundColor(Color.parseColor("#77000000"));
-        floatView.setTextSize(17);
-        floatView.setMinWidth(300);
-        floatView.setMinHeight(100);
-        floatView.setMaxHeight(500);
-        floatView.setGravity(Gravity.CENTER);
-        floatView.setPadding(15, 5, 15, 5);
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-        params.type = WindowManager.LayoutParams.TYPE_PHONE;
-        params.format = PixelFormat.RGBA_8888;
-        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        params.x = 0;
-        params.y = 0;
-
-        windowManager.addView(floatView, params);
-    }
-
-    private void addFloatView() {
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        danMuView = new DanMuView(getApplicationContext(), null);
-        danMuView.prepare();
-        danMuView.setBackgroundColor(Color.parseColor("#11000000"));
-
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-        params.type = WindowManager.LayoutParams.TYPE_PHONE;
-        params.format = PixelFormat.RGBA_8888;
-        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-        params.x = 0;
-        params.y = 0;
-        windowManager.addView(danMuView, params);
-    }
-
-    /**
-     * 实现一个OnPrepareLister接口,当音乐准备好的时候开始播放
-     */
-    private final class PreparedListener implements OnPreparedListener {
-        private int currentTime;
-
-        public PreparedListener(int currentTime) {
-            this.currentTime = currentTime;
-        }
-
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            if (!isStartLoopRead) {
-                return;
-            }
-            mediaPlayer.start(); // 开始播放
-            if (currentTime > 0) { // 如果音乐不是从头播放
-                mediaPlayer.seekTo(currentTime);
-            }
-        }
-    }
-
 }

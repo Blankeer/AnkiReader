@@ -17,15 +17,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.blanke.ankireader.R;
+import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.data.AnkiManager;
 import com.blanke.ankireader.play.PlayConfig;
 import com.blanke.ankireader.play.PlayerService;
-import com.blanke.ankireader.R;
-import com.blanke.ankireader.bean.Deck;
 import com.mylhyl.acp.Acp;
 import com.mylhyl.acp.AcpListener;
 import com.mylhyl.acp.AcpOptions;
@@ -45,10 +46,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AppCompatButton buStart;
     private AppCompatButton buStop;
     private SwitchCompat switchShowfloatview;
+    private SwitchCompat switchShownotification;
+    private SwitchCompat switchplay;
     private AppCompatEditText editTcpIp;
     private LinearLayout mLLLoopDesc;
     private SwitchCompat mScLoopDesc;
     private PlayConfig mPlayConfig;
+    private LinearLayout layoutFloatWrap;
+    private AppCompatSpinner spinnerFloatStyle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +65,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         spinnerPlaydeck = (AppCompatSpinner) findViewById(R.id.spinner_playdeck);
         spinnerPlaymode = (AppCompatSpinner) findViewById(R.id.spinner_playmode);
         switchShowfloatview = (SwitchCompat) findViewById(R.id.switch_showfloatview);
+        switchShownotification = (SwitchCompat) findViewById(R.id.switch_shownotification);
+        switchplay = (SwitchCompat) findViewById(R.id.switch_play);
+
         editTcpIp = (AppCompatEditText) findViewById(R.id.edit_tcp_ip);
         buStart = (AppCompatButton) findViewById(R.id.bu_start);
         buStop = (AppCompatButton) findViewById(R.id.bu_stop);
         mLLLoopDesc = (LinearLayout) findViewById(R.id.ll_loop_desc);
         mScLoopDesc = (SwitchCompat) findViewById(R.id.switch_loop_desc);
+        layoutFloatWrap = (LinearLayout) findViewById(R.id.view_floatstyle_wrap);
+        spinnerFloatStyle = (AppCompatSpinner) findViewById(R.id.spinner_floatview_style);
 
         buStart.setOnClickListener(this);
         buStop.setOnClickListener(this);
@@ -87,6 +97,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+
+        switchShowfloatview.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                layoutFloatWrap.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
+        });
+        spinnerFloatStyle.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1
+                , new String[]{"传统样式", "发射弹幕"}));
 
         Acp.getInstance(this).request(new AcpOptions.Builder()
                         .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -123,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         spinnerDeckAdapter.addAll(deckLists);
         loadData();
-//        AnkiManager.getNotesByDeck(decks.get(2));
+//        AnkiManager.getNotesByDeckId(decks.get(2));
     }
 
     private void startPlayService(PlayConfig pc) {
@@ -137,7 +156,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPlayConfig = new PlayConfig().load(sp);
         editLoopcount.setText(mPlayConfig.playCount + "");
         editSleep.setText(mPlayConfig.playSleepTime + "");
-        spinnerPlaymode.setSelection(mPlayConfig.playMode);
+        int modePosition = 0;
+        if (mPlayConfig.playMode == PlayConfig.PlayMode.RANDOM) {
+            modePosition = 1;
+        }
+        spinnerPlaymode.setSelection(modePosition);
         mScLoopDesc.setChecked(mPlayConfig.isLoopDesc);
         if (mPlayConfig.deckId != -1) {
             for (int i = 0; i < decks.size(); i++) {
@@ -151,6 +174,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mPlayConfig.tcpPort > 0) {
             editTcpIp.setText(mPlayConfig.tcpIp + ":" + mPlayConfig.tcpPort);
         }
+        if (mPlayConfig.floatStyleDanmu) {
+            spinnerFloatStyle.setSelection(1);
+        }
+        switchShownotification.setChecked(mPlayConfig.isShowNotification);
+        switchplay.setChecked(mPlayConfig.isPlay);
+
     }
 
     private PlayConfig saveData() {
@@ -172,9 +201,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mPlayConfig.deckId = -1;
         } else {
             mPlayConfig.deckId = decks.get(deckPosition - 1).getId();
-            Logger.d("deckId=" + mPlayConfig.deckId);
+//            Logger.d("deckId=" + mPlayConfig.deckId);
         }
-        mPlayConfig.playMode = spinnerPlaymode.getSelectedItemPosition();
+        mPlayConfig.playMode = PlayConfig.PlayMode.LOOP;
+        if (spinnerPlaymode.getSelectedItemPosition() == 1) {
+            mPlayConfig.playMode = PlayConfig.PlayMode.RANDOM;
+        }
         mPlayConfig.isShowFloatView = isShowFloat;
         mPlayConfig.isLoopDesc = mScLoopDesc.isChecked();
         String ipPort = editTcpIp.getText().toString().trim();
@@ -190,9 +222,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+
+        mPlayConfig.floatStyleDanmu = spinnerFloatStyle.getSelectedItemPosition() == 1;
+        mPlayConfig.floatStyleCommon = spinnerFloatStyle.getSelectedItemPosition() == 0;
+        mPlayConfig.isShowNotification = switchShownotification.isChecked();
+        mPlayConfig.isPlay = switchplay.isChecked();
+
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         mPlayConfig.save(sp);
-        Logger.d("saveConfig=" + mPlayConfig);
+//        Logger.d("saveConfig=" + mPlayConfig);
         return mPlayConfig;
     }
 

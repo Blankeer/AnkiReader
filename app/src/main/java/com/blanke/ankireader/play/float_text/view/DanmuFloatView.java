@@ -1,0 +1,67 @@
+package com.blanke.ankireader.play.float_text.view;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.view.WindowManager;
+
+import com.anbetter.danmuku.DanMuView;
+import com.anbetter.danmuku.model.DanMuModel;
+import com.blanke.ankireader.bean.Note;
+import com.blanke.ankireader.play.PlayConfig;
+
+/**
+ * danmu
+ * Created by blanke on 2017/5/20.
+ */
+
+public class DanmuFloatView extends DanMuView implements BaseFloatView {
+    private int danmuColor = Color.RED;
+    private int danmuSize = 50;
+    private int danmuSpeed = 1;
+
+    public DanmuFloatView(Context context) {
+        super(context, null);
+        init();
+    }
+
+    private void init() {
+        setBackgroundColor(Color.parseColor("#22000000"));
+        prepare();
+    }
+
+    @Override
+    public void setNote(Note note) {
+        add(getDanmu(note));
+    }
+
+    @Override
+    public void setConfig(PlayConfig playConfig) {
+        setBackgroundColor(playConfig.danmuBackgroud);
+        danmuSize = playConfig.danmuSize;
+        danmuColor = playConfig.danmuColor;
+        danmuSpeed = playConfig.danmuSpeed;
+    }
+
+    @Override
+    public void initView(WindowManager windowManager, WindowManager.LayoutParams params) {
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        windowManager.updateViewLayout(this, params);
+    }
+
+
+    private DanMuModel getDanmu(Note note) {
+        DanMuModel danmu = new DanMuModel();
+        danmu.setDisplayType(DanMuModel.RIGHT_TO_LEFT);
+        danmu.setPriority(DanMuModel.NORMAL);
+        danmu.textSize = danmuSize;
+        danmu.textColor = danmuColor;
+        danmu.setSpeed(danmuSpeed);
+        CharSequence text = note.getFullContent();
+        if (text.length() > 50) {
+            text = text.subSequence(0, 50);
+        }
+        danmu.text = text;
+        return danmu;
+    }
+}

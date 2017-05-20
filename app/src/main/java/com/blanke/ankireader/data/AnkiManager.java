@@ -35,38 +35,7 @@ public class AnkiManager {
     }
 
     public static List<Note> getAllNotes() {
-        return getNotesByDeck(-1);
-    }
-
-    public static List<File> getMediaFile(List<Note> notes) {
-        List<File> re = new ArrayList<>();
-        for (Note n : notes) {
-            re.addAll(getMediaFile(n));
-        }
-        return re;
-    }
-
-    public static List<File> getMediaFile(Note note) {
-        List<File> res = new ArrayList<>();
-        for (String str : note.getMediaPaths()) {
-            String path = ANKI_MEDIA_PATH + str;
-            File file = new File(path);
-            note.addMedia(file);
-        }
-        return res;
-    }
-
-    public static List<String> getMediaPath(List<Note> notes) {
-        List<String> re = new ArrayList<>();
-        for (Note n : notes) {
-//            for (String path : n.getMediaPaths()) {
-//                re.add(ANKI_MEDIA_PATH + path);
-//            }
-            if (n.getMediaPaths().size() > 0) {//默认添加第一个
-                re.add(ANKI_MEDIA_PATH + n.getMediaPaths().get(0));
-            }
-        }
-        return re;
+        return getNotesByDeckId(-1);
     }
 
     /**
@@ -109,7 +78,7 @@ public class AnkiManager {
      * @return
      */
     public static List<Note> getAllHasMediaNotesByDeckId(long deckId) {
-        List<Note> sources = getNotesByDeck(deckId);
+        List<Note> sources = getNotesByDeckId(deckId);
         List<Note> res = new ArrayList<>();
         for (Note source : sources) {
             if (source.getMediaPaths().size() > 0) {
@@ -119,7 +88,17 @@ public class AnkiManager {
         return res;
     }
 
-    public static List<Note> getNotesByDeck(long deckId) {
+    /**
+     * 根据文件名获取的完整路径
+     *
+     * @param filename
+     * @return
+     */
+    private static String getFullMediaPath(String filename) {
+        return ANKI_MEDIA_PATH + filename;
+    }
+
+    public static List<Note> getNotesByDeckId(long deckId) {
         List<Note> notes = new ArrayList<>();
         SQLiteDatabase db = openAnkiDb();
         if (db == null) {
@@ -142,7 +121,7 @@ public class AnkiManager {
             Matcher m = r.matcher(flds);
             while (m.find()) {
                 String path = m.group(1);
-                note.addMediaPath(path);
+                note.addMediaPath(getFullMediaPath(path));
             }
             String back = flds.substring(sfld.length(), flds.length());
             String front = sfld;
@@ -151,10 +130,11 @@ public class AnkiManager {
 //            flds=flds.replaceAll("<br.*?>","\n");//把<br>变成回车
 //            flds=flds.replaceAll("<.*?>","");//去掉html标签
             //update 不需要去掉html标签，textview支持显示html，效果更好
+            front=front.trim();
+            back=back.trim();
             note.setFront(front);
             note.setBack(back);
             notes.add(note);
-//            Logger.d(note);
         }
         c.close();
         db.close();

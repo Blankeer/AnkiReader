@@ -80,9 +80,9 @@
 
     <LinearLayout
         android:id="@+id/ll_loop_desc"
-        android:layout_margin="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
         android:orientation="horizontal">
 
         <TextView
@@ -109,6 +109,55 @@
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/switch_showfloatview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/view_floatstyle_wrap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="悬浮窗样式" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/spinner_floatview_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="是否显示通知栏" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_shownotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="是否播放" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true" />

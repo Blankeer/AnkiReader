@@ -1,9 +1,7 @@
 package com.blanke.ankireader.bean;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.text.Html;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,33 +9,31 @@ import java.util.List;
  * Created by on 2016/10/14.
  */
 
-public class Note implements Parcelable {
+public class Note {
     private long id;
     private String tags;
-    private String front;
-    private String back;
+    private CharSequence front;
+    private CharSequence back;
     private List<String> mediaPaths;
-    private List<File> medias;
+    private String primaryMediaPath;
 
     public Note() {
         mediaPaths = new ArrayList<>();
-        medias = new ArrayList<>();
-    }
-
-    public List<File> getMedias() {
-        return medias;
-    }
-
-    public void setMedias(List<File> medias) {
-        this.medias = medias;
-    }
-
-    public void addMedia(File media) {
-        this.medias.add(media);
     }
 
     public void addMediaPath(String path) {
         this.mediaPaths.add(path);
+    }
+
+    public String getPrimaryMediaPath() {
+        if (primaryMediaPath == null && mediaPaths.size() > 0) {
+            primaryMediaPath = mediaPaths.get(0);
+        }
+        return primaryMediaPath;
+    }
+
+    public CharSequence getFullContent() {
+        return Html.fromHtml(front.toString() + "<br/>" + back.toString());
     }
 
     @Override
@@ -51,19 +47,19 @@ public class Note implements Parcelable {
                 '}';
     }
 
-    public String getBack() {
+    public CharSequence getBack() {
         return back;
     }
 
-    public void setBack(String back) {
+    public void setBack(CharSequence back) {
         this.back = back;
     }
 
-    public String getFront() {
+    public CharSequence getFront() {
         return front;
     }
 
-    public void setFront(String front) {
+    public void setFront(CharSequence front) {
         this.front = front;
     }
 
@@ -91,40 +87,4 @@ public class Note implements Parcelable {
         this.tags = tags;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
-        dest.writeString(this.tags);
-        dest.writeString(this.front);
-        dest.writeString(this.back);
-        dest.writeStringList(this.mediaPaths);
-        dest.writeList(this.medias);
-    }
-
-    protected Note(Parcel in) {
-        this.id = in.readLong();
-        this.tags = in.readString();
-        this.front = in.readString();
-        this.back = in.readString();
-        this.mediaPaths = in.createStringArrayList();
-        this.medias = new ArrayList<File>();
-        in.readList(this.medias, File.class.getClassLoader());
-    }
-
-    public static final Creator<Note> CREATOR = new Creator<Note>() {
-        @Override
-        public Note createFromParcel(Parcel source) {
-            return new Note(source);
-        }
-
-        @Override
-        public Note[] newArray(int size) {
-            return new Note[size];
-        }
-    };
 }
