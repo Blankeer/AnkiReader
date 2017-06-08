@@ -13,8 +13,9 @@ import android.view.WindowManager;
 
 import com.blanke.ankireader.Config;
 import com.blanke.ankireader.R;
-import com.blanke.ankireader.weiget.ChoseTextSizeDialog;
-import com.blanke.ankireader.weiget.IntPreference;
+import com.blanke.ankireader.utils.TextSizeColorUtils;
+import com.blanke.ankireader.weiget.ChoseTextSizeColorDialog;
+import com.blanke.ankireader.weiget.StringPreference;
 
 /**
  * Created by blanke on 2017/6/8.
@@ -24,7 +25,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private ListPreference choseMode;
     private PreferenceScreen danmuScreen;
-    private IntPreference danmuSize;
+    private StringPreference danmuSize;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,16 +45,18 @@ public class SettingsFragment extends PreferenceFragment {
         choseMode.getOnPreferenceChangeListener()
                 .onPreferenceChange(choseMode, choseMode.getValue());
         //弹幕配置
-        danmuSize = (IntPreference) findPreference(getString(R.string.key_danmu_textsize));
+        danmuSize = (StringPreference) findPreference(getString(R.string.key_danmu_textsize));
         danmuSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                ChoseTextSizeDialog.show(getActivity(), R.string.text_danmu_textsize,
-                        danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_DP),
-                        new ChoseTextSizeDialog.onChoseTextSizeListener() {
+                final String sizeColor = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_COLOR);
+                ChoseTextSizeColorDialog.show(getActivity(), R.string.text_danmu_textsize,
+                        TextSizeColorUtils.getSize(sizeColor),
+                        TextSizeColorUtils.getColor(sizeColor),
+                        new ChoseTextSizeColorDialog.onChoseTextSizeColorListener() {
                             @Override
-                            public void onChoseSize(int size) {
-                                danmuSize.setValue(size);
+                            public void onChoseSizeColor(int size, int color) {
+                                danmuSize.setValue(TextSizeColorUtils.getSizeColor(size, color));
                             }
                         });
                 return true;
