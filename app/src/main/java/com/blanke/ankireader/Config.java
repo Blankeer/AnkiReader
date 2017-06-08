@@ -23,6 +23,8 @@ public class Config {
     public static final String KEY_DECK_ID = "KEY_DECK_ID";
     public static final String REG_SOUND="\\[sound:(.+?)\\]";
 
+    public static final int DEFAULT_DANMU_SIZE_DP = 14;
+    public static final int DEFAULT_DANMU_SIZE_DP_MAX = 26;
 
 
 }

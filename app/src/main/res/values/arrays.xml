@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="float_mode">
-        <item>弹幕模式</item>
-        <item>普通模式</item>
-        <item>我选择不显示</item>
+        <item>@string/text_float_mode_danmu</item>
+        <item>@string/text_float_mode_common</item>
+        <item>@string/text_float_mode_null</item>
     </string-array>
     <string-array name="float_mode_values">
         <item>0</item>

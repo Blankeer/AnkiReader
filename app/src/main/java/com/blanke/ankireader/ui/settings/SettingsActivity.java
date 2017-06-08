@@ -32,4 +32,10 @@ public class SettingsActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().replace(R.id.setting_fl_container,
                 new SettingsFragment()).commit();
     }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        toolbar.setTitle(title);
+    }
 }

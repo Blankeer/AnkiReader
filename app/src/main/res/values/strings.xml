@@ -8,4 +8,14 @@
     <string name="text_chose_float_mode">请选择笔记显示模式</string>
     <string name="text_float_mode_summary">播放时笔记内容将会显示在屏幕上,分为普通文本模式和弹幕模式</string>
     <string name="text_settings">设置</string>
+    <string name="text_float_mode_danmu">弹幕模式</string>
+    <string name="text_float_mode_common">普通模式</string>
+    <string name="text_float_mode_null">我选择不显示</string>
+    <string name="key_float_mode_danmu">key_float_mode_danmu</string>
+    <string name="text_test">苟利国家生死以</string>
+    <string name="confirm">确定</string>
+    <string name="key_danmu_textsize">text_danmu_textsize</string>
+    <string name="text_danmu_textsize">弹幕大小</string>
+    <string name="text_float_mode_danmu_settings">弹幕模式设置</string>
+    <string name="text_float_mode_danmu_summary">好鸡冻,要发射了~</string>
 </resources>
