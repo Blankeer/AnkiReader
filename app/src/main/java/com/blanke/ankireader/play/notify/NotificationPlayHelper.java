@@ -84,7 +84,7 @@ public class NotificationPlayHelper extends BasePlayHelper {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getService());
         builder.setContentTitle(title);
         builder.setContentText(content);
-        builder.setSmallIcon(R.mipmap.speakers);
+        builder.setSmallIcon(R.drawable.ic_music);
         android.support.v4.app.NotificationCompat.BigTextStyle style = new android.support.v4.app.NotificationCompat.BigTextStyle();
         style.bigText(Html.fromHtml(String.valueOf(content)));
         style.setBigContentTitle(title);
@@ -93,18 +93,18 @@ public class NotificationPlayHelper extends BasePlayHelper {
         builder.setOngoing(true);
         builder.setShowWhen(false);
         PendingIntent mPlayPauseIntent = getIntent(ACTION_TOGGLE_PLAY_PAUSE);
-        int playPauseIcon = R.mipmap.play;
+        int playPauseIcon = R.drawable.ic_play;
         String info = "开始";
         PlayerService playerService = (PlayerService) getService();
         if (playerService.getCurrentState()
                 == PlayerService.PlayState.PLAYING) {
-            playPauseIcon = R.mipmap.pause;
+            playPauseIcon = R.drawable.ic_pause;
             info = "暂停";
         }
         String stopText = "停止";
         PendingIntent mStopIntent = getIntent(ACTION_EXIT);
         builder.addAction(playPauseIcon, info, mPlayPauseIntent);
-        builder.addAction(R.mipmap.stop, stopText, mStopIntent);
+        builder.addAction(R.drawable.ic_stop, stopText, mStopIntent);
         builder.setContentIntent(getContentIntent());
         return builder.build();
     }
