@@ -11,6 +11,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import com.blanke.ankireader.bean.Deck;
 import com.blanke.ankireader.data.AnkiManager;
 import com.blanke.ankireader.play.PlayConfig;
 import com.blanke.ankireader.play.PlayerService;
+import com.blanke.ankireader.ui.settings.SettingsActivity;
 import com.mylhyl.acp.Acp;
 import com.mylhyl.acp.AcpListener;
 import com.mylhyl.acp.AcpOptions;
@@ -55,11 +57,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout layoutFloatWrap;
     private AppCompatSpinner spinnerFloatStyle;
 
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        XSocketLog.debug(true);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         editLoopcount = (EditText) findViewById(R.id.edit_loopcount);
         editSleep = (EditText) findViewById(R.id.edit_sleep);
         spinnerPlaydeck = (AppCompatSpinner) findViewById(R.id.spinner_playdeck);
@@ -268,10 +274,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_main_about:
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
+                start(AboutActivity.class);
+                break;
+            case R.id.menu_main_settings:
+                start(SettingsActivity.class);
                 break;
         }
         return true;
+    }
+
+    private void start(Class activityClass) {
+        Intent intent = new Intent(this, activityClass);
+        startActivity(intent);
     }
 }

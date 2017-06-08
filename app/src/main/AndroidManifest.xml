@@ -21,6 +21,7 @@
         </activity>
         <service android:name=".play.PlayerService" />
         <activity android:name=".ui.AboutActivity" />
+        <activity android:name=".ui.settings.SettingsActivity"/>
     </application>
 
 </manifest>
