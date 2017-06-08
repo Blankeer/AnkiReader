@@ -1,5 +1,9 @@
 package com.blanke.ankireader;
 
+import android.graphics.Color;
+
+import com.blanke.ankireader.utils.TextSizeColorUtils;
+
 /**
  * Created by on 2016/10/14.
  */
@@ -21,8 +25,12 @@ public class Config {
     public static final String KEY_DANMU_SPEED = "KEY_DANMU_SPEED";
     public static final String KEY_LOOP_DESC = "KEY_LOOP_DESC";
     public static final String KEY_DECK_ID = "KEY_DECK_ID";
-    public static final String REG_SOUND="\\[sound:(.+?)\\]";
+    public static final String REG_SOUND = "\\[sound:(.+?)\\]";
 
+    public static final int DEFAULT_DANMU_SIZE_DP = 14;
+    public static final int DEFAULT_DANMU_SIZE_DP_MAX = 26;
+    public static final int DEFAULT_DANMU_COLOR = Color.WHITE;
+    public static final String DEFAULT_DANMU_SIZE_COLOR = TextSizeColorUtils.getSizeColor(DEFAULT_DANMU_SIZE_DP, DEFAULT_DANMU_COLOR);
 
 
 }
