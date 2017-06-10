@@ -58,4 +58,8 @@
     <string name="key_common_text_maxlength">key_common_text_maxlength</string>
     <string name="text_common_text_maxlength">笔记内容最大长度</string>
     <string name="key_play_deck_ids">key_play_deck_ids</string>
+    <string name="key_danmu_background">key_danmu_background</string>
+    <string name="text_danmu_background">弹幕背景</string>
+    <string name="key_common_click_stop">key_common_click_stop</string>
+    <string name="text_common_click_stop">双击暂停播放</string>
 </resources>

@@ -38,6 +38,9 @@ public class MusicPlayHelper extends BasePlayHelper {
     }
 
     private void playMusic(Note note) throws IOException {
+        if (mediaPlayer == null) {
+            return;
+        }
         mediaPlayer.reset();// 把各项参数恢复到初始状态
         mediaPlayer.setDataSource(note.getPrimaryMediaPath());
         mediaPlayer.prepare(); // 进行缓冲

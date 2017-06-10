@@ -10,12 +10,17 @@ import android.widget.Toast;
 import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
+import com.blanke.ankireader.event.PausePlayEvent;
+import com.blanke.ankireader.event.StopPlayEvent;
 import com.blanke.ankireader.play.float_text.FloatTextPlayHelper;
 import com.blanke.ankireader.play.float_text.view.BaseFloatView;
 import com.blanke.ankireader.play.float_text.view.DanmuFloatView;
 import com.blanke.ankireader.play.float_text.view.TextFloatView;
 import com.blanke.ankireader.play.music.MusicPlayHelper;
 import com.blanke.ankireader.play.notify.NotificationPlayHelper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +56,7 @@ public class PlayerService extends Service {
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -80,11 +86,13 @@ public class PlayerService extends Service {
         }
         if (mPlayConfig.getFloatMode() != PlayConfig.FloatMode.Null) {
             floatTextPlayHelper = FloatTextPlayHelper.getInstance(this);
-            BaseFloatView floatView = new DanmuFloatView(this);
-            floatView.setConfig(mPlayConfig);
+            BaseFloatView floatView;
             if (mPlayConfig.getFloatMode() == PlayConfig.FloatMode.Common) {
                 floatView = new TextFloatView(this);
+            } else {
+                floatView = new DanmuFloatView(this);
             }
+            floatView.setConfig(mPlayConfig);
             floatTextPlayHelper.setFloatView(floatView);
             playHelpersConsumer.add(floatTextPlayHelper);
         }
@@ -184,10 +192,22 @@ public class PlayerService extends Service {
         pausePlayHelpers();
     }
 
+    @Subscribe
+    public void onEventStop(StopPlayEvent event) {
+        stopSelf();
+    }
+
+    @Subscribe
+    public void onEventPause(PausePlayEvent event) {
+        pause();
+    }
+
     @Override
     public void onDestroy() {
+        super.onDestroy();
         currentState = PlayState.NORMAL;
         destroyPlayHelpers();
+        EventBus.getDefault().unregister(this);
     }
 
     /**

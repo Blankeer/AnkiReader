@@ -25,6 +25,13 @@
                 app:cpv_dialogTitle="@string/text_danmu_textcolor"
                 app:cpv_showAlphaSlider="true" />
 
+            <com.jaredrummler.android.colorpicker.ColorPreference
+                android:defaultValue="@color/defaultDanmuBackgroundColor"
+                android:key="@string/key_danmu_background"
+                android:title="@string/text_danmu_background"
+                app:cpv_dialogTitle="@string/text_danmu_background"
+                app:cpv_showAlphaSlider="true" />
+
             <com.blanke.ankireader.weiget.IntEditTextPreference
                 android:defaultValue="5"
                 android:inputType="number"
@@ -74,6 +81,10 @@
                 android:key="@string/key_common_text_maxlength"
                 android:title="@string/text_common_text_maxlength" />
 
+            <SwitchPreference
+                android:defaultValue="true"
+                android:key="@string/key_common_click_stop"
+                android:title="@string/text_common_click_stop" />
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/text_category_play_settings">

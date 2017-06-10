@@ -6,5 +6,6 @@
     <color name="defaultDanmuColor">@color/colorAccent</color>
     <color name="defaultCommonTextColor">#fff</color>
     <color name="defaultCommonBackgroundColor">#4000</color>
+    <color name="defaultDanmuBackgroundColor">#1000</color>
 
 </resources>

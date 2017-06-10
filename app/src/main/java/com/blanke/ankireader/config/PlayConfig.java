@@ -29,6 +29,7 @@ public class PlayConfig {
     private FloatMode floatMode;
     private int danmuSize;
     private int danmuColor;
+    private int danmuBackgroundColor;
     private int danmuSpeed;
     private int danmuTextLength;
     private int commonTextSize;
@@ -36,6 +37,7 @@ public class PlayConfig {
     private int commonTextBackgroundColor;
     private int commonTextLength;
     private int commonTextGravity;
+    private boolean commonTextClickStop;
     private boolean playSwitch;
     private int playLoopCount;
     private int playIntervalTime;
@@ -56,6 +58,8 @@ public class PlayConfig {
                 Config.DEFAULT_DANMU_SIZE_DP);
         playConfig.danmuColor = preferences.getInt(context.getString(R.string.key_danmu_textcolor),
                 ContextCompat.getColor(context, R.color.defaultDanmuColor));
+        playConfig.danmuBackgroundColor = preferences.getInt(context.getString(R.string.key_danmu_background),
+                ContextCompat.getColor(context, R.color.defaultDanmuBackgroundColor));
         playConfig.danmuSpeed = preferences.getInt(context.getString(R.string.key_danmu_speed), 5);
         playConfig.danmuTextLength = preferences.getInt(context.getString(R.string.key_danmu_maxlength), 50);
         playConfig.commonTextSize = preferences.getInt(context.getString(R.string.key_common_textsize),
@@ -74,6 +78,7 @@ public class PlayConfig {
         } else if (value.equals("2")) {
             playConfig.commonTextGravity = Gravity.END;
         }
+        playConfig.commonTextClickStop = preferences.getBoolean(context.getString(R.string.key_common_click_stop), true);
         playConfig.playSwitch = preferences.getBoolean(context.getString(R.string.key_play_switch), true);
         playConfig.playLoopCount = preferences.getInt(context.getString(R.string.key_play_loop_count), 3);
         playConfig.playIntervalTime = preferences.getInt(context.getString(R.string.key_play_interval_time), 800);
@@ -106,6 +111,14 @@ public class PlayConfig {
         SharedPreferences.Editor edit = preferences.edit();
         edit.putString(context.getString(R.string.key_play_deck_ids), sb.toString());
         edit.apply();
+    }
+
+    public boolean isCommonTextClickStop() {
+        return commonTextClickStop;
+    }
+
+    public int getDanmuBackgroundColor() {
+        return danmuBackgroundColor;
     }
 
     public FloatMode getFloatMode() {

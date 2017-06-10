@@ -66,7 +66,7 @@ public class SettingsFragment extends PreferenceFragment {
         });
         danmuColor = (ColorPreference) findPreference(getString(R.string.key_danmu_textcolor));
         //普通配置
-        commonTextSize= (IntPreference) findPreference(getString(R.string.key_common_textsize));
+        commonTextSize = (IntPreference) findPreference(getString(R.string.key_common_textsize));
         commonTextSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -81,7 +81,18 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
-
+        //播放设置
+        final ListPreference playMode = (ListPreference) findPreference(getString(R.string.key_play_mode));
+        final Preference playReverse = findPreference(getString(R.string.key_play_reverse));
+        playMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                int position = playMode.findIndexOfValue(newValue.toString());
+                playReverse.setEnabled(position == 0);
+                return true;
+            }
+        });
+        playMode.getOnPreferenceChangeListener().onPreferenceChange(playMode, playMode.getValue());
     }
 
     @Override
