@@ -12,7 +12,7 @@
         android:summary="@string/text_float_mode_danmu_summary"
         android:title="@string/text_float_mode_danmu_settings">
 
-        <com.blanke.ankireader.weiget.StringPreference
+        <com.blanke.ankireader.weiget.IntPreference
             android:key="@string/key_danmu_textsize"
             android:title="@string/text_danmu_textsize" />
 

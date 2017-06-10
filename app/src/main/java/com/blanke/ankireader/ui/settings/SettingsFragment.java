@@ -13,9 +13,8 @@ import android.view.WindowManager;
 
 import com.blanke.ankireader.Config;
 import com.blanke.ankireader.R;
-import com.blanke.ankireader.utils.TextSizeColorUtils;
-import com.blanke.ankireader.weiget.ChoseTextSizeColorDialog;
-import com.blanke.ankireader.weiget.StringPreference;
+import com.blanke.ankireader.weiget.ChoseTextSizeDialog;
+import com.blanke.ankireader.weiget.IntPreference;
 
 /**
  * Created by blanke on 2017/6/8.
@@ -25,7 +24,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private ListPreference choseMode;
     private PreferenceScreen danmuScreen;
-    private StringPreference danmuSize;
+    private IntPreference danmuSize;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,20 +44,19 @@ public class SettingsFragment extends PreferenceFragment {
         choseMode.getOnPreferenceChangeListener()
                 .onPreferenceChange(choseMode, choseMode.getValue());
         //弹幕配置
-        danmuSize = (StringPreference) findPreference(getString(R.string.key_danmu_textsize));
+        danmuSize = (IntPreference) findPreference(getString(R.string.key_danmu_textsize));
         danmuSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                final String sizeColor = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_COLOR);
-                ChoseTextSizeColorDialog.show(getActivity(), R.string.text_danmu_textsize,
-                        TextSizeColorUtils.getSize(sizeColor),
-                        TextSizeColorUtils.getColor(sizeColor),
-                        new ChoseTextSizeColorDialog.onChoseTextSizeColorListener() {
+                final int size = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_DP);
+                ChoseTextSizeDialog.show(getActivity(), R.string.text_danmu_textsize,
+                        size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
                             @Override
-                            public void onChoseSizeColor(int size, int color) {
-                                danmuSize.setValue(TextSizeColorUtils.getSizeColor(size, color));
+                            public void onChoseSize(int size) {
+                                danmuSize.setValue(size);
                             }
-                        });
+                        }
+                );
                 return true;
             }
         });
@@ -67,7 +65,6 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
                                          Preference preference) {
-
         // Initiating Dialog's layout when any sub PreferenceScreen clicked
         if (preference.getClass() == PreferenceScreen.class) {
             // Retrieving the opened Dialog

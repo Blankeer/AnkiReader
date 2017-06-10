@@ -25,7 +25,7 @@ public class ChoseTextSizeDialog {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_textsize_chose, null);
         final TextView dialogTextsizeTvTest = (TextView) view.findViewById(R.id.dialog_textsize_tv_test);
         final SeekBar dialogTextsizePb = (SeekBar) view.findViewById(R.id.dialog_textsize_sb);
-        dialogTextsizePb.setMax(Config.DEFAULT_DANMU_SIZE_DP_MAX);
+        dialogTextsizePb.setMax(Config.DANMU_SIZE_DP_MAX);
         dialogTextsizePb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
