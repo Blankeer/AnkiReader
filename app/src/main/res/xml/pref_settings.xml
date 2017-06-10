@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <ListPreference
         android:defaultValue="0"
         android:entries="@array/float_mode"
@@ -15,6 +16,13 @@
         <com.blanke.ankireader.weiget.IntPreference
             android:key="@string/key_danmu_textsize"
             android:title="@string/text_danmu_textsize" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreference
+            android:defaultValue="@color/defaultDanmuColor"
+            android:key="@string/key_danmu_textcolor"
+            android:title="@string/text_danmu_textcolor"
+            app:cpv_dialogTitle="@string/text_danmu_textcolor"
+            app:cpv_showAlphaSlider="true" />
 
     </PreferenceScreen>
 </PreferenceScreen>

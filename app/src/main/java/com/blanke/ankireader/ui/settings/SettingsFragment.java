@@ -15,6 +15,7 @@ import com.blanke.ankireader.Config;
 import com.blanke.ankireader.R;
 import com.blanke.ankireader.weiget.ChoseTextSizeDialog;
 import com.blanke.ankireader.weiget.IntPreference;
+import com.jaredrummler.android.colorpicker.ColorPreference;
 
 /**
  * Created by blanke on 2017/6/8.
@@ -25,6 +26,7 @@ public class SettingsFragment extends PreferenceFragment {
     private ListPreference choseMode;
     private PreferenceScreen danmuScreen;
     private IntPreference danmuSize;
+    private ColorPreference danmuColor;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,8 +51,7 @@ public class SettingsFragment extends PreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 final int size = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_DP);
-                ChoseTextSizeDialog.show(getActivity(), R.string.text_danmu_textsize,
-                        size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
+                ChoseTextSizeDialog.show(getActivity(), R.string.text_danmu_textsize, size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
                             @Override
                             public void onChoseSize(int size) {
                                 danmuSize.setValue(size);
@@ -60,6 +61,8 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+        danmuColor = (ColorPreference) findPreference(getString(R.string.key_danmu_textcolor));
+
     }
 
     @Override

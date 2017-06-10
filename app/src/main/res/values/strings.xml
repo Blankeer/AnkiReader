@@ -18,4 +18,6 @@
     <string name="text_danmu_textsize">弹幕大小</string>
     <string name="text_float_mode_danmu_settings">弹幕模式设置</string>
     <string name="text_float_mode_danmu_summary">好鸡冻,要发射了~</string>
+    <string name="text_danmu_textcolor">弹幕颜色</string>
+    <string name="key_danmu_textcolor">key_danmu_textcolor</string>
 </resources>
