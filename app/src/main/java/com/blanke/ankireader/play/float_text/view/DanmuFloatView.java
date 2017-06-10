@@ -7,7 +7,7 @@ import android.view.WindowManager;
 import com.anbetter.danmuku.DanMuView;
 import com.anbetter.danmuku.model.DanMuModel;
 import com.blanke.ankireader.bean.Note;
-import com.blanke.ankireader.play.PlayConfig;
+import com.blanke.ankireader.config.PlayConfig;
 
 /**
  * danmu
@@ -36,10 +36,10 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
 
     @Override
     public void setConfig(PlayConfig playConfig) {
-        setBackgroundColor(playConfig.danmuBackgroud);
-        danmuSize = playConfig.danmuSize;
-        danmuColor = playConfig.danmuColor;
-        danmuSpeed = playConfig.danmuSpeed;
+//        setBackgroundColor(playConfig.danmuBackgroud);
+        danmuSize = playConfig.getDanmuSize();
+        danmuColor = playConfig.getDanmuColor();
+        danmuSpeed = playConfig.getDanmuSpeed();
     }
 
     @Override

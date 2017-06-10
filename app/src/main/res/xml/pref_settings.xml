@@ -25,13 +25,13 @@
                 app:cpv_dialogTitle="@string/text_danmu_textcolor"
                 app:cpv_showAlphaSlider="true" />
 
-            <EditTextPreference
+            <com.blanke.ankireader.weiget.IntEditTextPreference
                 android:defaultValue="5"
                 android:inputType="number"
                 android:key="@string/key_danmu_speed"
                 android:title="@string/text_danmu_speed" />
 
-            <EditTextPreference
+            <com.blanke.ankireader.weiget.IntEditTextPreference
                 android:defaultValue="50"
                 android:inputType="number"
                 android:key="@string/key_danmu_maxlength"
@@ -68,6 +68,12 @@
                 android:key="@string/key_common_text_gravity"
                 android:title="@string/text_common_text_gravity" />
 
+            <com.blanke.ankireader.weiget.IntEditTextPreference
+                android:defaultValue="50"
+                android:inputType="number"
+                android:key="@string/key_common_text_maxlength"
+                android:title="@string/text_common_text_maxlength" />
+
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/text_category_play_settings">
@@ -77,14 +83,14 @@
             android:summary="@string/text_play_switch_summary"
             android:title="@string/text_play_switch" />
 
-        <EditTextPreference
+        <com.blanke.ankireader.weiget.IntEditTextPreference
             android:defaultValue="3"
             android:dependency="@string/key_play_switch"
             android:inputType="number"
             android:key="@string/key_play_loop_count"
             android:title="@string/text_play_loop_count" />
 
-        <EditTextPreference
+        <com.blanke.ankireader.weiget.IntEditTextPreference
             android:defaultValue="800"
             android:dependency="@string/key_play_switch"
             android:inputType="number"

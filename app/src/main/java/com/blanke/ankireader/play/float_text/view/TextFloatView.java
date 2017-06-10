@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.blanke.ankireader.bean.Note;
-import com.blanke.ankireader.play.PlayConfig;
+import com.blanke.ankireader.config.PlayConfig;
 
 /**
  * 只显示文本

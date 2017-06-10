@@ -1,7 +1,5 @@
 package com.blanke.ankireader;
 
-import android.graphics.Color;
-
 /**
  * Created by on 2016/10/14.
  */
@@ -27,7 +25,6 @@ public class Config {
 
     public static final int DEFAULT_DANMU_SIZE_DP = 14;
     public static final int DANMU_SIZE_DP_MAX = 26;
-    public static final int DEFAULT_DANMU_COLOR = Color.WHITE;
 
 
 }

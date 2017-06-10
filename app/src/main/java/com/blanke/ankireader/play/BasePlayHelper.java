@@ -3,6 +3,7 @@ package com.blanke.ankireader.play;
 import android.app.Service;
 
 import com.blanke.ankireader.bean.Note;
+import com.blanke.ankireader.config.PlayConfig;
 
 import java.lang.ref.WeakReference;
 

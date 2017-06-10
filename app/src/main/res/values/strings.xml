@@ -23,7 +23,7 @@
     <string name="key_danmu_speed">key_danmu_speed</string>
     <string name="text_danmu_speed">弹幕速度</string>
     <string name="key_danmu_maxlength">key_danmu_maxlength</string>
-    <string name="text_danmu_maxlength">弹幕最大显示字数</string>
+    <string name="text_danmu_maxlength">弹幕最大长度</string>
     <string name="key_float_mode_common">key_float_mode_common</string>
     <string name="text_float_mode_common_summary">悬浮窗显示笔记内容</string>
     <string name="text_float_mode_common_settings">普通模式</string>
@@ -55,4 +55,7 @@
     <string name="key_notification_switch">key_notification_switch</string>
     <string name="text_notification_switch">通知栏开关</string>
     <string name="text_notification_switch_summary">是否显示通知栏</string>
+    <string name="key_common_text_maxlength">key_common_text_maxlength</string>
+    <string name="text_common_text_maxlength">笔记内容最大长度</string>
+    <string name="key_play_deck_ids">key_play_deck_ids</string>
 </resources>
