@@ -20,4 +20,8 @@
     <string name="text_float_mode_danmu_summary">好鸡冻,要发射了~</string>
     <string name="text_danmu_textcolor">弹幕颜色</string>
     <string name="key_danmu_textcolor">key_danmu_textcolor</string>
+    <string name="key_danmu_speed">key_danmu_speed</string>
+    <string name="text_danmu_speed">弹幕速度</string>
+    <string name="key_danmu_maxlength">key_danmu_maxlength</string>
+    <string name="text_danmu_maxlength">弹幕最大显示字数</string>
 </resources>

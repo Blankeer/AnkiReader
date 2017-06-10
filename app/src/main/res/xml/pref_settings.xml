@@ -24,5 +24,17 @@
             app:cpv_dialogTitle="@string/text_danmu_textcolor"
             app:cpv_showAlphaSlider="true" />
 
+        <EditTextPreference
+            android:defaultValue="5"
+            android:inputType="number"
+            android:key="@string/key_danmu_speed"
+            android:title="@string/text_danmu_speed" />
+
+        <EditTextPreference
+            android:defaultValue="50"
+            android:inputType="number"
+            android:key="@string/key_danmu_maxlength"
+            android:title="@string/text_danmu_maxlength" />
+
     </PreferenceScreen>
 </PreferenceScreen>
