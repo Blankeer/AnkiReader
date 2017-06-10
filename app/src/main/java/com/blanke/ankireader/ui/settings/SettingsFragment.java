@@ -7,7 +7,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -27,6 +26,8 @@ public class SettingsFragment extends PreferenceFragment {
     private PreferenceScreen danmuScreen;
     private IntPreference danmuSize;
     private ColorPreference danmuColor;
+    private PreferenceScreen commonScreen;
+    private IntPreference commonTextSize;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,11 +35,13 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_settings);
         choseMode = (ListPreference) findPreference(getString(R.string.key_float_mode));
         danmuScreen = (PreferenceScreen) findPreference(getString(R.string.key_float_mode_danmu));
+        commonScreen = (PreferenceScreen) findPreference(getString(R.string.key_float_mode_common));
         choseMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 int index = choseMode.findIndexOfValue(newValue.toString());
                 danmuScreen.setEnabled(index == 0);
+                commonScreen.setEnabled(index == 1);
                 return true;
             }
         });
@@ -62,6 +65,22 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
         danmuColor = (ColorPreference) findPreference(getString(R.string.key_danmu_textcolor));
+        //普通配置
+        commonTextSize= (IntPreference) findPreference(getString(R.string.key_common_textsize));
+        commonTextSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final int size = commonTextSize.getValue(Config.DEFAULT_DANMU_SIZE_DP);
+                ChoseTextSizeDialog.show(getActivity(), R.string.text_common_textsize, size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
+                            @Override
+                            public void onChoseSize(int size) {
+                                commonTextSize.setValue(size);
+                            }
+                        }
+                );
+                return true;
+            }
+        });
 
     }
 
@@ -73,9 +92,9 @@ public class SettingsFragment extends PreferenceFragment {
             // Retrieving the opened Dialog
             Dialog dialog = ((PreferenceScreen) preference).getDialog();
             if (dialog == null) return false;
-            if (!TextUtils.isEmpty(preference.getTitle())) {
-                getActivity().setTitle(preference.getTitle());
-            }
+//            if (!TextUtils.isEmpty(preference.getTitle())) {
+//                getActivity().setTitle(preference.getTitle());
+//            }
             initDialogLayout(dialog);   // Initiate the dialog's layout
         }
         return true;

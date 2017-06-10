@@ -1,40 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/float_mode"
-        android:entryValues="@array/float_mode_values"
-        android:key="@string/key_float_mode"
-        android:summary="@string/text_float_mode_summary"
-        android:title="@string/text_chose_float_mode" />
-    <PreferenceScreen
-        android:key="@string/key_float_mode_danmu"
-        android:summary="@string/text_float_mode_danmu_summary"
-        android:title="@string/text_float_mode_danmu_settings">
+    <PreferenceCategory android:title="@string/text_category_note_float_settings">
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/float_mode"
+            android:entryValues="@array/float_mode_values"
+            android:key="@string/key_float_mode"
+            android:summary="@string/text_float_mode_summary"
+            android:title="@string/text_chose_float_mode" />
+        <PreferenceScreen
+            android:key="@string/key_float_mode_danmu"
+            android:summary="@string/text_float_mode_danmu_summary"
+            android:title="@string/text_float_mode_danmu_settings">
 
-        <com.blanke.ankireader.weiget.IntPreference
-            android:key="@string/key_danmu_textsize"
-            android:title="@string/text_danmu_textsize" />
+            <com.blanke.ankireader.weiget.IntPreference
+                android:key="@string/key_danmu_textsize"
+                android:title="@string/text_danmu_textsize" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreference
-            android:defaultValue="@color/defaultDanmuColor"
-            android:key="@string/key_danmu_textcolor"
-            android:title="@string/text_danmu_textcolor"
-            app:cpv_dialogTitle="@string/text_danmu_textcolor"
-            app:cpv_showAlphaSlider="true" />
+            <com.jaredrummler.android.colorpicker.ColorPreference
+                android:defaultValue="@color/defaultDanmuColor"
+                android:key="@string/key_danmu_textcolor"
+                android:title="@string/text_danmu_textcolor"
+                app:cpv_dialogTitle="@string/text_danmu_textcolor"
+                app:cpv_showAlphaSlider="true" />
+
+            <EditTextPreference
+                android:defaultValue="5"
+                android:inputType="number"
+                android:key="@string/key_danmu_speed"
+                android:title="@string/text_danmu_speed" />
+
+            <EditTextPreference
+                android:defaultValue="50"
+                android:inputType="number"
+                android:key="@string/key_danmu_maxlength"
+                android:title="@string/text_danmu_maxlength" />
+
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:key="@string/key_float_mode_common"
+            android:summary="@string/text_float_mode_common_summary"
+            android:title="@string/text_float_mode_common_settings">
+
+            <com.blanke.ankireader.weiget.IntPreference
+                android:key="@string/key_common_textsize"
+                android:title="@string/text_common_textsize" />
+
+            <com.jaredrummler.android.colorpicker.ColorPreference
+                android:defaultValue="@color/defaultCommonTextColor"
+                android:key="@string/key_common_textcolor"
+                android:title="@string/text_common_textcolor"
+                app:cpv_dialogTitle="@string/text_common_textcolor"
+                app:cpv_showAlphaSlider="true" />
+
+            <com.jaredrummler.android.colorpicker.ColorPreference
+                android:defaultValue="@color/defaultCommonBackgroundColor"
+                android:key="@string/key_common_background"
+                android:title="@string/text_common_background"
+                app:cpv_dialogTitle="@string/text_common_background"
+                app:cpv_showAlphaSlider="true" />
+
+            <ListPreference
+                android:defaultValue="0"
+                android:entries="@array/common_text_gravity"
+                android:entryValues="@array/common_text_gravity_values"
+                android:key="@string/key_common_text_gravity"
+                android:title="@string/text_common_text_gravity" />
+
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/text_category_play_settings">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_play_switch"
+            android:summary="@string/text_play_switch_summary"
+            android:title="@string/text_play_switch" />
 
         <EditTextPreference
-            android:defaultValue="5"
+            android:defaultValue="3"
+            android:dependency="@string/key_play_switch"
             android:inputType="number"
-            android:key="@string/key_danmu_speed"
-            android:title="@string/text_danmu_speed" />
+            android:key="@string/key_play_loop_count"
+            android:title="@string/text_play_loop_count" />
 
         <EditTextPreference
-            android:defaultValue="50"
+            android:defaultValue="800"
+            android:dependency="@string/key_play_switch"
             android:inputType="number"
-            android:key="@string/key_danmu_maxlength"
-            android:title="@string/text_danmu_maxlength" />
+            android:key="@string/key_play_interval_time"
+            android:title="@string/text_play_interval_time" />
 
-    </PreferenceScreen>
+        <ListPreference
+            android:defaultValue="0"
+            android:dependency="@string/key_play_switch"
+            android:entries="@array/play_mode"
+            android:entryValues="@array/play_mode_values"
+            android:key="@string/key_play_mode"
+            android:title="@string/text_play_mode" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_play_switch"
+            android:key="@string/key_play_reverse"
+            android:title="@string/text_play_reverse" />
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/text_category_notification">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_notification_switch"
+            android:summary="@string/text_notification_switch_summary"
+            android:title="@string/text_notification_switch" />
+
+    </PreferenceCategory>
 </PreferenceScreen>

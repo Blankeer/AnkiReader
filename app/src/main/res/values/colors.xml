@@ -4,5 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="defaultDanmuColor">@color/colorAccent</color>
+    <color name="defaultCommonTextColor">#fff</color>
+    <color name="defaultCommonBackgroundColor">#4000</color>
 
 </resources>

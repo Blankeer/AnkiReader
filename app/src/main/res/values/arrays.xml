@@ -10,4 +10,22 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="common_text_gravity">
+        <item>@string/text_gravity_center</item>
+        <item>@string/text_gravity_left</item>
+        <item>@string/text_gravity_right</item>
+    </string-array>
+    <string-array name="common_text_gravity_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="play_mode">
+        <item>循环播放</item>
+        <item>随机播放</item>
+    </string-array>
+    <string-array name="play_mode_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>
