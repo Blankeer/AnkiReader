@@ -1,6 +1,8 @@
 package com.blanke.ankireader.ui.settings;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -9,6 +11,7 @@ import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.blanke.ankireader.Config;
 import com.blanke.ankireader.R;
@@ -93,6 +96,26 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
         playMode.getOnPreferenceChangeListener().onPreferenceChange(playMode, playMode.getValue());
+
+        //tts
+        Preference ttsDownload = findPreference(getString(R.string.key_tts_download));
+        ttsDownload.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                openMarket();
+                return true;
+            }
+        });
+    }
+
+    private void openMarket() {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("market://search?q=" + "tts"));
+            startActivity(i);
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "您的手机上没有安装应用市场", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

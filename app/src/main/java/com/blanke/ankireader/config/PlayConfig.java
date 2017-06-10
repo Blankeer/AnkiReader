@@ -32,18 +32,27 @@ public class PlayConfig {
     private int danmuBackgroundColor;
     private int danmuSpeed;
     private int danmuTextLength;
+
     private int commonTextSize;
     private int commonTextColor;
     private int commonTextBackgroundColor;
     private int commonTextLength;
     private int commonTextGravity;
     private boolean commonTextClickStop;
+
     private boolean playSwitch;
     private int playLoopCount;
     private int playIntervalTime;
     private PlayMode playMode;
     private boolean playReverse;
+
     private boolean notificationSwitch;
+
+    private boolean ttsSwitch;
+    private boolean ttsUseAll;
+    private boolean ttsUseFront;
+    private boolean ttsUseBack;
+
     private long[] playDeckIds;
 
     public static PlayConfig loadConfig(Context context) {
@@ -88,6 +97,7 @@ public class PlayConfig {
             playConfig.playMode = PlayMode.Random;
         }
         playConfig.playReverse = preferences.getBoolean(context.getString(R.string.key_play_reverse), false);
+
         playConfig.notificationSwitch = preferences.getBoolean(context.getString(R.string.key_notification_switch), true);
         String tempStr = preferences.getString(context.getString(R.string.key_play_deck_ids), "");
         if (!TextUtils.isEmpty(tempStr)) {
@@ -97,6 +107,12 @@ public class PlayConfig {
                 playConfig.playDeckIds[i] = Long.parseLong(temps[i]);
             }
         }
+
+        playConfig.ttsSwitch = preferences.getBoolean(context.getString(R.string.key_tts_switch), false);
+        playConfig.ttsUseAll = preferences.getBoolean(context.getString(R.string.key_tts_use_all), false);
+        playConfig.ttsUseFront = preferences.getBoolean(context.getString(R.string.key_tts_front_switch), false);
+        playConfig.ttsUseBack = preferences.getBoolean(context.getString(R.string.key_tts_back_switch), false);
+
         return playConfig;
     }
 
@@ -111,6 +127,22 @@ public class PlayConfig {
         SharedPreferences.Editor edit = preferences.edit();
         edit.putString(context.getString(R.string.key_play_deck_ids), sb.toString());
         edit.apply();
+    }
+
+    public boolean isTtsSwitch() {
+        return ttsSwitch;
+    }
+
+    public boolean isTtsUseAll() {
+        return ttsUseAll;
+    }
+
+    public boolean isTtsUseFront() {
+        return ttsUseFront;
+    }
+
+    public boolean isTtsUseBack() {
+        return ttsUseBack;
     }
 
     public boolean isCommonTextClickStop() {

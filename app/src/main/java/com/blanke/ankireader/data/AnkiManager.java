@@ -74,11 +74,10 @@ public class AnkiManager {
     /**
      * 获得全部含有音频的 note
      *
-     * @param deckId
      * @return
      */
-    public static List<Note> getAllHasMediaNotesByDeckId(long deckId) {
-        List<Note> sources = getNotesByDeckId(deckId);
+    public static List<Note> getAllHasMediaNotesByDeckId(long... deckIds) {
+        List<Note> sources = getNotesByDeckId(deckIds);
         List<Note> res = new ArrayList<>();
         for (Note source : sources) {
             if (source.getMediaPaths().size() > 0) {

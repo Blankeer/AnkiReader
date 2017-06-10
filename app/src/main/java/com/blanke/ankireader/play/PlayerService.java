@@ -125,11 +125,11 @@ public class PlayerService extends Service {
             @Override
             public void subscribe(@NonNull ObservableEmitter<Note> e) throws Exception {
                 List<Note> notes = null;
-//                if (mPlayConfig.isPlaySwitch()) {
-//                    notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.deckId);
-//                } else {
-                notes = AnkiManager.getNotesByDeckId(mPlayConfig.getPlayDeckIds());
-//                }
+                if (mPlayConfig.isTtsSwitch()) {//读取所有
+                    notes = AnkiManager.getNotesByDeckId(mPlayConfig.getPlayDeckIds());
+                } else {//读取只有 anki 音频的
+                    notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.getPlayDeckIds());
+                }
                 if (notes.size() == 0) {
                     throw new IllegalArgumentException("牌组识别为空!");
                 }

@@ -62,4 +62,18 @@
     <string name="text_danmu_background">弹幕背景</string>
     <string name="key_common_click_stop">key_common_click_stop</string>
     <string name="text_common_click_stop">双击暂停播放</string>
+    <string name="text_category_tts">TTS设置</string>
+    <string name="key_tts_switch">key_tts_switch</string>
+    <string name="text_tts_switch">TTS开关</string>
+    <string name="text_tts_switch_summary">TTS需要相关引擎支持,需安装\"Google文字转语音引擎\"之类的TTS支持</string>
+    <string name="key_tts_use_all">key_tts_use_all</string>
+    <string name="text_tts_use_all">全局TTS</string>
+    <string name="text_tts_use_all_summary">设置全局TTS会覆盖原有音频,若不设置该项,会优先使用原有音频,不存在再使用TTS</string>
+    <string name="key_tts_front_switch">key_tts_front_switch</string>
+    <string name="text_tts_front_switch">正面TTS</string>
+    <string name="key_tts_back_switch">key_tts_back_switch</string>
+    <string name="text_tts_back_switch">反面TTS</string>
+    <string name="key_tts_download">key_tts_download</string>
+    <string name="text_tts_download">TTS引擎下载</string>
+    <string name="text_tts_download_summary">会跳转到应用市场搜索页面</string>
 </resources>
