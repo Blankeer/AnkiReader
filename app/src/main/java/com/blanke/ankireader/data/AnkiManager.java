@@ -35,7 +35,7 @@ public class AnkiManager {
     }
 
     public static List<Note> getAllNotes() {
-        return getNotesByDeckId(-1);
+        return getNotesByDeckId();
     }
 
     /**
@@ -74,11 +74,10 @@ public class AnkiManager {
     /**
      * 获得全部含有音频的 note
      *
-     * @param deckId
      * @return
      */
-    public static List<Note> getAllHasMediaNotesByDeckId(long deckId) {
-        List<Note> sources = getNotesByDeckId(deckId);
+    public static List<Note> getAllHasMediaNotesByDeckId(long... deckIds) {
+        List<Note> sources = getNotesByDeckId(deckIds);
         List<Note> res = new ArrayList<>();
         for (Note source : sources) {
             if (source.getMediaPaths().size() > 0) {
@@ -98,17 +97,25 @@ public class AnkiManager {
         return ANKI_MEDIA_PATH + filename;
     }
 
-    public static List<Note> getNotesByDeckId(long deckId) {
+    public static List<Note> getNotesByDeckId(long... decks) {
         List<Note> notes = new ArrayList<>();
         SQLiteDatabase db = openAnkiDb();
         if (db == null) {
             return null;
         }
         String sql = "select * from " + TABLE_NOTES;
-        if (deckId != -1) {
+        if (decks != null && decks.length > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < decks.length; i++) {
+                if (i != decks.length - 1) {
+                    sb.append(decks[i] + " , ");
+                } else {
+                    sb.append(decks[i]);
+                }
+            }
             sql = "select n.id,n.tags, flds, sfld" +
-                    " from notes as n, cards as c where c.nid=n.id  and c.did=" + deckId
-                    + " order by n.id desc";
+                    " from notes as n, cards as c where c.nid=n.id  and c.did in (" + sb.toString()
+                    + " ) order by n.id desc";
         }
         Cursor c = db.rawQuery(sql, null);
         while (c.moveToNext()) {
@@ -130,8 +137,8 @@ public class AnkiManager {
 //            flds=flds.replaceAll("<br.*?>","\n");//把<br>变成回车
 //            flds=flds.replaceAll("<.*?>","");//去掉html标签
             //update 不需要去掉html标签，textview支持显示html，效果更好
-            front=front.trim();
-            back=back.trim();
+            front = front.trim();
+            back = back.trim();
             note.setFront(front);
             note.setBack(back);
             notes.add(note);

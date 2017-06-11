@@ -1,21 +1,23 @@
 package com.blanke.ankireader.ui.settings;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.blanke.ankireader.Config;
 import com.blanke.ankireader.R;
-import com.blanke.ankireader.utils.TextSizeColorUtils;
-import com.blanke.ankireader.weiget.ChoseTextSizeColorDialog;
-import com.blanke.ankireader.weiget.StringPreference;
+import com.blanke.ankireader.weiget.ChoseTextSizeDialog;
+import com.blanke.ankireader.weiget.IntPreference;
+import com.jaredrummler.android.colorpicker.ColorPreference;
 
 /**
  * Created by blanke on 2017/6/8.
@@ -25,7 +27,10 @@ public class SettingsFragment extends PreferenceFragment {
 
     private ListPreference choseMode;
     private PreferenceScreen danmuScreen;
-    private StringPreference danmuSize;
+    private IntPreference danmuSize;
+    private ColorPreference danmuColor;
+    private PreferenceScreen commonScreen;
+    private IntPreference commonTextSize;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,11 +38,13 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_settings);
         choseMode = (ListPreference) findPreference(getString(R.string.key_float_mode));
         danmuScreen = (PreferenceScreen) findPreference(getString(R.string.key_float_mode_danmu));
+        commonScreen = (PreferenceScreen) findPreference(getString(R.string.key_float_mode_common));
         choseMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 int index = choseMode.findIndexOfValue(newValue.toString());
                 danmuScreen.setEnabled(index == 0);
+                commonScreen.setEnabled(index == 1);
                 return true;
             }
         });
@@ -45,37 +52,83 @@ public class SettingsFragment extends PreferenceFragment {
         choseMode.getOnPreferenceChangeListener()
                 .onPreferenceChange(choseMode, choseMode.getValue());
         //弹幕配置
-        danmuSize = (StringPreference) findPreference(getString(R.string.key_danmu_textsize));
+        danmuSize = (IntPreference) findPreference(getString(R.string.key_danmu_textsize));
         danmuSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                final String sizeColor = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_COLOR);
-                ChoseTextSizeColorDialog.show(getActivity(), R.string.text_danmu_textsize,
-                        TextSizeColorUtils.getSize(sizeColor),
-                        TextSizeColorUtils.getColor(sizeColor),
-                        new ChoseTextSizeColorDialog.onChoseTextSizeColorListener() {
+                final int size = danmuSize.getValue(Config.DEFAULT_DANMU_SIZE_DP);
+                ChoseTextSizeDialog.show(getActivity(), R.string.text_danmu_textsize, size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
                             @Override
-                            public void onChoseSizeColor(int size, int color) {
-                                danmuSize.setValue(TextSizeColorUtils.getSizeColor(size, color));
+                            public void onChoseSize(int size) {
+                                danmuSize.setValue(size);
                             }
-                        });
+                        }
+                );
+                return true;
+            }
+        });
+        danmuColor = (ColorPreference) findPreference(getString(R.string.key_danmu_textcolor));
+        //普通配置
+        commonTextSize = (IntPreference) findPreference(getString(R.string.key_common_textsize));
+        commonTextSize.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final int size = commonTextSize.getValue(Config.DEFAULT_DANMU_SIZE_DP);
+                ChoseTextSizeDialog.show(getActivity(), R.string.text_common_textsize, size, new ChoseTextSizeDialog.onChoseTextSizeListener() {
+                            @Override
+                            public void onChoseSize(int size) {
+                                commonTextSize.setValue(size);
+                            }
+                        }
+                );
+                return true;
+            }
+        });
+        //播放设置
+        final ListPreference playMode = (ListPreference) findPreference(getString(R.string.key_play_mode));
+        final Preference playReverse = findPreference(getString(R.string.key_play_reverse));
+        playMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                int position = playMode.findIndexOfValue(newValue.toString());
+                playReverse.setEnabled(position == 0);
+                return true;
+            }
+        });
+        playMode.getOnPreferenceChangeListener().onPreferenceChange(playMode, playMode.getValue());
+
+        //tts
+        Preference ttsDownload = findPreference(getString(R.string.key_tts_download));
+        ttsDownload.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                openMarket();
                 return true;
             }
         });
     }
 
+    private void openMarket() {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("market://search?q=" + "tts"));
+            startActivity(i);
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "您的手机上没有安装应用市场", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
                                          Preference preference) {
-
         // Initiating Dialog's layout when any sub PreferenceScreen clicked
         if (preference.getClass() == PreferenceScreen.class) {
             // Retrieving the opened Dialog
             Dialog dialog = ((PreferenceScreen) preference).getDialog();
             if (dialog == null) return false;
-            if (!TextUtils.isEmpty(preference.getTitle())) {
-                getActivity().setTitle(preference.getTitle());
-            }
+//            if (!TextUtils.isEmpty(preference.getTitle())) {
+//                getActivity().setTitle(preference.getTitle());
+//            }
             initDialogLayout(dialog);   // Initiate the dialog's layout
         }
         return true;

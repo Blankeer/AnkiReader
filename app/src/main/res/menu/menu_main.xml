@@ -5,5 +5,5 @@
         android:title="@string/text_settings"></item>
     <item
         android:id="@+id/menu_main_about"
-        android:title="关于"></item>
+        android:title="@string/text_about"></item>
 </menu>

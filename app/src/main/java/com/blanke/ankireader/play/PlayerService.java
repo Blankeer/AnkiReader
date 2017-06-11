@@ -8,13 +8,20 @@ import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.blanke.ankireader.bean.Note;
+import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
+import com.blanke.ankireader.event.PausePlayEvent;
+import com.blanke.ankireader.event.StartPlayEvent;
+import com.blanke.ankireader.event.StopPlayEvent;
 import com.blanke.ankireader.play.float_text.FloatTextPlayHelper;
 import com.blanke.ankireader.play.float_text.view.BaseFloatView;
 import com.blanke.ankireader.play.float_text.view.DanmuFloatView;
 import com.blanke.ankireader.play.float_text.view.TextFloatView;
 import com.blanke.ankireader.play.music.MusicPlayHelper;
 import com.blanke.ankireader.play.notify.NotificationPlayHelper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +52,14 @@ public class PlayerService extends Service {
     private NotificationPlayHelper notificationPlayHelper;
     private FloatTextPlayHelper floatTextPlayHelper;
     private Handler handler;
+    private static boolean running = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
+        EventBus.getDefault().register(this);
+        running = true;
     }
 
     @Override
@@ -62,35 +72,34 @@ public class PlayerService extends Service {
                 this.stopSelf();
             }
         } else {//first init
-            PlayConfig pc = (PlayConfig) intent.getSerializableExtra("config");
-            if (pc != null) {
-                mPlayConfig = pc;
-                destroyPlayHelpers();
-                initPlayHelpers();
-                play();
-            }
+            mPlayConfig = PlayConfig.loadConfig(this);
+            destroyPlayHelpers();
+            initPlayHelpers();
+            play();
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void initPlayHelpers() {
         playHelpersConsumer = new ArrayList<>();
-        if (mPlayConfig.isShowNotification) {
+        if (mPlayConfig.isNotificationSwitch()) {
             notificationPlayHelper = NotificationPlayHelper.getInstance(this);
             notificationPlayHelper.setPlayConfig(mPlayConfig);
             playHelpersConsumer.add(notificationPlayHelper);
         }
-        if (mPlayConfig.isShowFloatView) {
+        if (mPlayConfig.getFloatMode() != PlayConfig.FloatMode.Null) {
             floatTextPlayHelper = FloatTextPlayHelper.getInstance(this);
-            BaseFloatView floatView = new DanmuFloatView(this);
-            floatView.setConfig(mPlayConfig);
-            if (mPlayConfig.floatStyleCommon) {
+            BaseFloatView floatView;
+            if (mPlayConfig.getFloatMode() == PlayConfig.FloatMode.Common) {
                 floatView = new TextFloatView(this);
+            } else {
+                floatView = new DanmuFloatView(this);
             }
+            floatView.setConfig(mPlayConfig);
             floatTextPlayHelper.setFloatView(floatView);
             playHelpersConsumer.add(floatTextPlayHelper);
         }
-        if (mPlayConfig.isPlay) {
+        if (mPlayConfig.isPlaySwitch()) {
             musicPlayHelper = MusicPlayHelper.getInstance(this);
             musicPlayHelper.setPlayConfig(mPlayConfig);
             playHelpersConsumer.add(musicPlayHelper);
@@ -119,34 +128,35 @@ public class PlayerService extends Service {
             @Override
             public void subscribe(@NonNull ObservableEmitter<Note> e) throws Exception {
                 List<Note> notes = null;
-                if (mPlayConfig.isPlay) {
-                    notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.deckId);
-                } else {
-                    notes = AnkiManager.getNotesByDeckId(mPlayConfig.deckId);
+                if (mPlayConfig.isTtsSwitch()) {//读取所有
+                    notes = AnkiManager.getNotesByDeckId(mPlayConfig.getPlayDeckIds());
+                } else {//读取只有 anki 音频的
+                    notes = AnkiManager.getAllHasMediaNotesByDeckId(mPlayConfig.getPlayDeckIds());
                 }
                 if (notes.size() == 0) {
                     throw new IllegalArgumentException("牌组识别为空!");
                 }
 //                Logger.d("start emit ");
-                int i = getNextIndex(mPlayConfig.isLoopDesc ? notes.size() : -1,
+                EventBus.getDefault().post(new StartPlayEvent());
+                int i = getNextIndex(mPlayConfig.isPlayReverse() ? notes.size() : -1,
                         notes.size());
                 while (currentState == PlayState.PLAYING) {
-                    for (int j = 0; j < mPlayConfig.playCount; j++) {//循环 x 次
+                    for (int j = 0; j < mPlayConfig.getPlayLoopCount(); j++) {//循环 x 次
                         Note note = notes.get(i);
                         e.onNext(note);
-                        Thread.sleep(mPlayConfig.playSleepTime);
+                        Thread.sleep(mPlayConfig.getPlayIntervalTime());
                     }
                     i = getNextIndex(i, notes.size());
                 }
             }
 
             private int getNextIndex(int i, int count) {
-                if (mPlayConfig.playMode == PlayConfig.PlayMode.LOOP) {//循环
-                    if (mPlayConfig.isLoopDesc) {
+                if (mPlayConfig.getPlayMode() == PlayConfig.PlayMode.Loop) {//循环
+                    if (mPlayConfig.isPlayReverse()) {
                         return (i - 1) % count;
                     }
                     return (i + 1) % count;
-                } else if (mPlayConfig.playMode == PlayConfig.PlayMode.RANDOM) {//随机
+                } else if (mPlayConfig.getPlayMode() == PlayConfig.PlayMode.Random) {//随机
                     return getRandomIndex(count);
                 }
                 return (i + 1) % count;
@@ -173,6 +183,7 @@ public class PlayerService extends Service {
                                         Toast.LENGTH_LONG).show();
                             }
                         });
+                        stopSelf();
                     }
                 });
     }
@@ -186,10 +197,24 @@ public class PlayerService extends Service {
         pausePlayHelpers();
     }
 
+    @Subscribe
+    public void onEventStop(StopPlayEvent event) {
+        stopSelf();
+    }
+
+    @Subscribe
+    public void onEventPause(PausePlayEvent event) {
+        pause();
+    }
+
     @Override
     public void onDestroy() {
+        super.onDestroy();
         currentState = PlayState.NORMAL;
         destroyPlayHelpers();
+        EventBus.getDefault().unregister(this);
+        running = false;
+        EventBus.getDefault().post(new StopPlayEvent());
     }
 
     /**
@@ -233,6 +258,10 @@ public class PlayerService extends Service {
 
     public PlayState getCurrentState() {
         return currentState;
+    }
+
+    public static boolean isRunning() {
+        return running;
     }
 
     @Nullable

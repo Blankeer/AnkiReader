@@ -6,8 +6,10 @@ import android.view.WindowManager;
 
 import com.anbetter.danmuku.DanMuView;
 import com.anbetter.danmuku.model.DanMuModel;
+import com.anbetter.danmuku.model.utils.DimensionUtil;
 import com.blanke.ankireader.bean.Note;
-import com.blanke.ankireader.play.PlayConfig;
+import com.blanke.ankireader.config.PlayConfig;
+import com.blanke.ankireader.utils.HtmlUtils;
 
 /**
  * danmu
@@ -18,6 +20,7 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
     private int danmuColor = Color.RED;
     private int danmuSize = 50;
     private int danmuSpeed = 1;
+    private int danmuMaxLength;
 
     public DanmuFloatView(Context context) {
         super(context, null);
@@ -25,7 +28,6 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
     }
 
     private void init() {
-        setBackgroundColor(Color.parseColor("#22000000"));
         prepare();
     }
 
@@ -36,10 +38,11 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
 
     @Override
     public void setConfig(PlayConfig playConfig) {
-        setBackgroundColor(playConfig.danmuBackgroud);
-        danmuSize = playConfig.danmuSize;
-        danmuColor = playConfig.danmuColor;
-        danmuSpeed = playConfig.danmuSpeed;
+        setBackgroundColor(playConfig.getDanmuBackgroundColor());
+        danmuSize = DimensionUtil.spToPx(getContext(), playConfig.getDanmuSize());
+        danmuColor = playConfig.getDanmuColor();
+        danmuSpeed = playConfig.getDanmuSpeed();
+        danmuMaxLength = playConfig.getDanmuTextLength();
     }
 
     @Override
@@ -57,9 +60,10 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
         danmu.textSize = danmuSize;
         danmu.textColor = danmuColor;
         danmu.setSpeed(danmuSpeed);
-        CharSequence text = note.getFullContent();
-        if (text.length() > 50) {
-            text = text.subSequence(0, 50);
+        String text = HtmlUtils.removeAllTags(note.getFront().toString()) + "\n" +
+                HtmlUtils.removeNoBrTags(note.getBack().toString());
+        if (text.length() > danmuMaxLength) {
+            text = text.subSequence(0, danmuMaxLength) + "...";
         }
         danmu.text = text;
         return danmu;

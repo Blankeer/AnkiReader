@@ -1,15 +1,16 @@
 package com.blanke.ankireader.play.float_text.view;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.AppCompatTextView;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import com.blanke.ankireader.bean.Note;
-import com.blanke.ankireader.play.PlayConfig;
+import com.blanke.ankireader.config.PlayConfig;
+import com.blanke.ankireader.event.StopPlayEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * 只显示文本
@@ -17,19 +18,20 @@ import com.blanke.ankireader.play.PlayConfig;
  */
 
 public class TextFloatView extends AppCompatTextView implements BaseFloatView {
+    private PlayConfig playConfig;
+
     public TextFloatView(Context context) {
         super(context);
-        init();
     }
 
-    private void init() {
-        setTextColor(Color.parseColor("#ffffff"));
-        setBackgroundColor(Color.parseColor("#77000000"));
-        setTextSize(17);
+    private void init(PlayConfig playConfig) {
+        this.playConfig = playConfig;
+        setTextColor(playConfig.getCommonTextColor());
+        setBackgroundColor(playConfig.getCommonTextBackgroundColor());
+        setTextSize(playConfig.getCommonTextSize());
+        setGravity(playConfig.getCommonTextGravity());
         setMinWidth(300);
         setMinHeight(100);
-        setMaxHeight(900);
-        setGravity(Gravity.CENTER);
         setPadding(15, 5, 15, 5);
     }
 
@@ -38,14 +40,26 @@ public class TextFloatView extends AppCompatTextView implements BaseFloatView {
         post(new Runnable() {
             @Override
             public void run() {
-                setText(note.getFullContent());
+                int maxLength = playConfig.getCommonTextLength();
+                if (note.getFullContent().length() > maxLength) {
+                    setText(note.getFullContent().subSequence(0, maxLength) + "...");
+                } else {
+                    setText(note.getFullContent());
+                }
             }
         });
     }
 
     @Override
     public void setConfig(PlayConfig playConfig) {
-        init();
+        init(playConfig);
+    }
+
+    private void onDoubleClick() {
+        if (!playConfig.isCommonTextClickStop()) {
+            return;
+        }
+        EventBus.getDefault().post(new StopPlayEvent());
     }
 
     @Override
@@ -56,15 +70,30 @@ public class TextFloatView extends AppCompatTextView implements BaseFloatView {
         setOnTouchListener(new View.OnTouchListener() {
             float downX, downY;
             int paramX, paramY;
+            int downCount = 0;
+            long lastDownTime;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-//                Logger.d(event.getAction() + " downCount " + downCount);
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     downX = event.getRawX();
                     downY = event.getRawY();
                     paramX = params.x;
                     paramY = params.y;
+                    downCount++;
+                    long nowTime = System.currentTimeMillis();
+                    if (downCount == 1) {
+                        lastDownTime = nowTime;
+                    } else if (downCount == 2) {//双击事件
+                        onDoubleClick();
+                        if (nowTime - lastDownTime < 600) {
+                            lastDownTime = 0;
+                            downCount = 0;
+                        } else {
+                            downCount = 1;
+                            lastDownTime = nowTime;
+                        }
+                    }
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     float nowX = event.getRawX();
                     float nowY = event.getRawY();

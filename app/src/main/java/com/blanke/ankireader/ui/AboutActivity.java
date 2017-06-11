@@ -17,7 +17,7 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_about);
+        setContentView(R.layout.activity_about);
     }
 
     public void onClick(View view) {
