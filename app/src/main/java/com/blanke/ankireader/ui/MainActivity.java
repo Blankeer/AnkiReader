@@ -6,17 +6,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.blanke.ankireader.R;
 import com.blanke.ankireader.bean.Deck;
-import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
 import com.blanke.ankireader.play.PlayerService;
 import com.blanke.ankireader.ui.settings.SettingsActivity;
@@ -26,34 +25,30 @@ import com.mylhyl.acp.AcpOptions;
 import com.orhanobut.logger.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private AppCompatSpinner spinnerPlaydeck;
-    private ArrayAdapter<String> spinnerDeckAdapter;
-    private List<Deck> decks;
     private AppCompatButton buStart;
     private AppCompatButton buStop;
 
     private Toolbar toolbar;
+    private RecyclerView mainRv;
+    private DeckAdapter madaAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        XSocketLog.debug(true);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        spinnerPlaydeck = (AppCompatSpinner) findViewById(R.id.spinner_playdeck);
 
         buStart = (AppCompatButton) findViewById(R.id.bu_start);
         buStop = (AppCompatButton) findViewById(R.id.bu_stop);
 
         buStart.setOnClickListener(this);
         buStop.setOnClickListener(this);
-        spinnerDeckAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        spinnerPlaydeck.setAdapter(spinnerDeckAdapter);
+        initRecyclerView();
 
         Acp.getInstance(this).request(new AcpOptions.Builder()
                         .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -73,7 +68,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
+    private void initRecyclerView() {
+        mainRv = (RecyclerView) findViewById(R.id.main_rv);
+        mainRv.setLayoutManager(new LinearLayoutManager(this));
+        madaAdapter = new DeckAdapter(this);
+        mainRv.setAdapter(madaAdapter);
+    }
+
     private void prepareLoadData() {
+        List<Deck> decks;
         try {
             decks = AnkiManager.getAllDecks();
         } catch (Exception e) {
@@ -83,13 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (decks == null || decks.size() == 0) {
             Toast.makeText(this, "牌组为空...", Toast.LENGTH_LONG).show();
         }
-        List<String> deckLists = new ArrayList<>();
-        deckLists.add("全部卡牌");
-        for (Deck d : decks) {
-            deckLists.add(d.getName());
-        }
-        spinnerDeckAdapter.addAll(deckLists);
-//        AnkiManager.getNotesByDeckId(decks.get(2));
+        madaAdapter.setDatas(decks);
     }
 
     private void startPlayService() {
@@ -101,13 +98,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.bu_start) {
-            int position = spinnerPlaydeck.getSelectedItemPosition();
-            if (position == 0) {
-                PlayConfig.saveDeckIds(this, null);
-            } else {
-                PlayConfig.saveDeckIds(this, decks.get(position - 1).getId());
-            }
-            decks.get(position);
+//            int position = spinnerPlaydeck.getSelectedItemPosition();
+//            if (position == 0) {
+//                PlayConfig.saveDeckIds(this, null);
+//            } else {
+//                PlayConfig.saveDeckIds(this, decks.get(position - 1).getId());
+//            }
+//            decks.get(position);
 
             startPlayService();
 //            finish();
@@ -117,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //test
     private void getFile() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separatorChar
                 + "AnkiDroid" + File.separatorChar + "collection.media" + File.separatorChar;
@@ -152,4 +150,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(this, activityClass);
         startActivity(intent);
     }
+
 }
