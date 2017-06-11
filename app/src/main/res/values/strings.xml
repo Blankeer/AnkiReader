@@ -79,4 +79,5 @@
     <string name="select_deck_done_all">全选</string>
     <string name="msg_anki_not_install">没有找到 Anki 数据库,请确保安装 Anki 后使用.</string>
     <string name="msg_deck_empty">牌组为空...</string>
+    <string name="text_about">关于</string>
 </resources>
