@@ -35,4 +35,13 @@
         android:text="请作者吃鸡腿~"
         android:textSize="20dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:autoLink="all"
+        android:textSize="18sp"
+        android:gravity="bottom|center_horizontal"
+        android:paddingBottom="20dp"
+        android:text="@string/text_github" />
 </LinearLayout>
