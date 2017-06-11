@@ -7,5 +7,6 @@
     <color name="defaultCommonTextColor">#fff</color>
     <color name="defaultCommonBackgroundColor">#4000</color>
     <color name="defaultDanmuBackgroundColor">#1000</color>
+    <color name="colorPressed">#33444444</color>
 
 </resources>

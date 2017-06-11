@@ -76,4 +76,5 @@
     <string name="key_tts_download">key_tts_download</string>
     <string name="text_tts_download">TTS引擎下载</string>
     <string name="text_tts_download_summary">会跳转到应用市场搜索页面</string>
+    <string name="select_deck_done_all">全选</string>
 </resources>
