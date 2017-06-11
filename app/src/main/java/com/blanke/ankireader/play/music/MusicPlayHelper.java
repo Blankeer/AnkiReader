@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.play.BasePlayHelper;
+import com.blanke.ankireader.utils.HtmlUtils;
 import com.blanke.ankireader.utils.TtsUtils;
 
 import java.io.IOException;
@@ -58,10 +59,10 @@ public class MusicPlayHelper extends BasePlayHelper {
     //播放 tts
     private void playTTS(Note note) throws InterruptedException {
         if (playConfig.isTtsUseFront()) {
-            playTTSReal(note.getFront().toString());
+            playTTSReal(HtmlUtils.removeAllTags(note.getFront().toString()));
         }
         if (playConfig.isTtsUseBack()) {
-            playTTSReal(note.getBack().toString());
+            playTTSReal(HtmlUtils.removeAllTags(note.getBack().toString()));
         }
     }
 

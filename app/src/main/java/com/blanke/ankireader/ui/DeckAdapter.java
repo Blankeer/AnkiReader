@@ -78,6 +78,28 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.ViewHold>
         notifyDataSetChanged();
     }
 
+    public void selectDecks(long... deckIds) {
+        if (deckIds == null) {
+            return;
+        }
+        for (long deckId : deckIds) {
+            for (int i = 0; i < datas.size(); i++) {
+                if (deckId == datas.get(i).getId()) {
+                    setSelected(i, true);
+                    break;
+                }
+            }
+        }
+    }
+
+    public long[] getSelectDeckIds() {
+        long[] deckIds = new long[selectPositios.size()];
+        for (int i = 0; i < selectPositios.size(); i++) {
+            deckIds[i] = datas.get(selectPositios.get(i)).getId();
+        }
+        return deckIds;
+    }
+
     public void setDatas(List<Deck> datas) {
         this.datas = datas;
         notifyDataSetChanged();

@@ -99,6 +99,8 @@ public class PlayConfig {
         playConfig.playReverse = preferences.getBoolean(context.getString(R.string.key_play_reverse), false);
 
         playConfig.notificationSwitch = preferences.getBoolean(context.getString(R.string.key_notification_switch), true);
+
+        //deckIds
         String tempStr = preferences.getString(context.getString(R.string.key_play_deck_ids), "");
         if (!TextUtils.isEmpty(tempStr)) {
             String[] temps = tempStr.split(",");

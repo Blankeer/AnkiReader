@@ -5,21 +5,23 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.Toast;
 
 import com.afollestad.dragselectrecyclerview.DragSelectRecyclerView;
 import com.afollestad.materialcab.MaterialCab;
 import com.blanke.ankireader.R;
 import com.blanke.ankireader.bean.Deck;
+import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
+import com.blanke.ankireader.event.StartPlayEvent;
+import com.blanke.ankireader.event.StopPlayEvent;
 import com.blanke.ankireader.play.PlayerService;
 import com.blanke.ankireader.ui.settings.SettingsActivity;
 import com.mylhyl.acp.Acp;
@@ -27,38 +29,36 @@ import com.mylhyl.acp.AcpListener;
 import com.mylhyl.acp.AcpOptions;
 import com.orhanobut.logger.Logger;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener,
-        DeckAdapter.Listener, MaterialCab.Callback {
-    private AppCompatButton buStart;
-    private AppCompatButton buStop;
-
+        implements DeckAdapter.Listener, MaterialCab.Callback {
     private Toolbar toolbar;
     private DragSelectRecyclerView mainRv;
-    private ViewStub cabStub;
+    private FloatingActionButton fab;
 
     private DeckAdapter mAdapter;
     private MaterialCab cab;
+    private PlayConfig playConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        buStart = (AppCompatButton) findViewById(R.id.bu_start);
-        buStop = (AppCompatButton) findViewById(R.id.bu_stop);
-
-        buStart.setOnClickListener(this);
-        buStop.setOnClickListener(this);
-        cabStub = (ViewStub) findViewById(R.id.cab_stub);
+        playConfig = PlayConfig.loadConfig(this);
 
         initRecyclerView();
+        initFab();
 
         Acp.getInstance(this).request(new AcpOptions.Builder()
                         .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -78,6 +78,43 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
+    private void initFab() {
+        fab = (FloatingActionButton) findViewById(R.id.main_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (PlayerService.isRunning()) {
+                    stopPlayService();
+                } else {
+                    PlayConfig.saveDeckIds(MainActivity.this
+                            , mAdapter.getSelectDeckIds());
+                    startPlayService();
+                }
+                fab.setEnabled(false);
+            }
+        });
+        initPlayFabDrawable();
+    }
+
+    private void initPlayFabDrawable() {
+        fab.setEnabled(true);
+        if (PlayerService.isRunning()) {
+            fab.setImageResource(R.drawable.ic_stop);
+        } else {
+            fab.setImageResource(R.drawable.ic_play);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stopPlay(StopPlayEvent event) {
+        initPlayFabDrawable();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void startPlay(StartPlayEvent event) {
+        initPlayFabDrawable();
+    }
+
     private void initRecyclerView() {
         mainRv = (DragSelectRecyclerView) findViewById(R.id.main_rv);
         mainRv.setLayoutManager(new LinearLayoutManager(this));
@@ -86,18 +123,30 @@ public class MainActivity extends AppCompatActivity
         mainRv.setAdapter(mAdapter);
     }
 
+    private void toggleFab(boolean show) {
+        if (!show && PlayerService.isRunning()) {
+            return;
+        }
+        if (show) {
+            fab.show();
+        } else {
+            fab.hide();
+        }
+    }
+
     private void prepareLoadData() {
         List<Deck> decks;
         try {
             decks = AnkiManager.getAllDecks();
         } catch (Exception e) {
-            Toast.makeText(this, "没有识别到 anki 数据库 = =", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_anki_not_install, Toast.LENGTH_LONG).show();
             return;
         }
         if (decks == null || decks.size() == 0) {
-            Toast.makeText(this, "牌组为空...", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_deck_empty, Toast.LENGTH_LONG).show();
         }
         mAdapter.setDatas(decks);
+        mAdapter.selectDecks(playConfig.getPlayDeckIds());//已经选择的
     }
 
     private void startPlayService() {
@@ -105,31 +154,18 @@ public class MainActivity extends AppCompatActivity
         startService(intent2);
     }
 
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.bu_start) {
-//            int position = spinnerPlaydeck.getSelectedItemPosition();
-//            if (position == 0) {
-//                PlayConfig.saveDeckIds(this, null);
-//            } else {
-//                PlayConfig.saveDeckIds(this, decks.get(position - 1).getId());
-//            }
-//            decks.get(position);
-
-            startPlayService();
-//            finish();
-        } else if (v.getId() == R.id.bu_stop) {
-            Intent intent2 = new Intent(this, PlayerService.class);
-            stopService(intent2);
-        }
+    private void stopPlayService() {
+        Intent intent2 = new Intent(this, PlayerService.class);
+        stopService(intent2);
     }
 
     @Override
     public void onClick(int index) {
-        if (mAdapter.isSelected()) {
-            mAdapter.toggleSelected(index);
-        }
+//        if (mAdapter.isSelected()) {
+//            mAdapter.toggleSelected(index);
+//        }
+        // 点击转发给长按事件
+        onLongClick(index);
     }
 
     @Override
@@ -143,7 +179,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSelectionChanged(int count) {
-        if (mAdapter.isSelected()) {
+        if (count > 0) {
             if (cab == null) {
                 cab = new MaterialCab(this, R.id.cab_stub)
                         .setMenu(R.menu.menu_selected_deck)
@@ -152,9 +188,11 @@ public class MainActivity extends AppCompatActivity
                 cab.getToolbar().setTitleTextColor(Color.WHITE);
             }
             cab.setTitle(mAdapter.getSelectedCount() + "");
+            toggleFab(true);//show fab
         } else if (cab != null && cab.isActive()) {
             cab.reset().finish();
             cab = null;
+            toggleFab(false);//hide fab
         }
     }
 
@@ -175,6 +213,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCabFinished(MaterialCab cab) {
         mAdapter.clearSelected();
         this.cab = null;
+        toggleFab(false);
         return true;
     }
 
@@ -188,6 +227,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
     private void start(Class activityClass) {
         Intent intent = new Intent(this, activityClass);

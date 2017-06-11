@@ -11,6 +11,7 @@ import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
 import com.blanke.ankireader.event.PausePlayEvent;
+import com.blanke.ankireader.event.StartPlayEvent;
 import com.blanke.ankireader.event.StopPlayEvent;
 import com.blanke.ankireader.play.float_text.FloatTextPlayHelper;
 import com.blanke.ankireader.play.float_text.view.BaseFloatView;
@@ -51,12 +52,14 @@ public class PlayerService extends Service {
     private NotificationPlayHelper notificationPlayHelper;
     private FloatTextPlayHelper floatTextPlayHelper;
     private Handler handler;
+    private static boolean running = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
         EventBus.getDefault().register(this);
+        running = true;
     }
 
     @Override
@@ -134,6 +137,7 @@ public class PlayerService extends Service {
                     throw new IllegalArgumentException("牌组识别为空!");
                 }
 //                Logger.d("start emit ");
+                EventBus.getDefault().post(new StartPlayEvent());
                 int i = getNextIndex(mPlayConfig.isPlayReverse() ? notes.size() : -1,
                         notes.size());
                 while (currentState == PlayState.PLAYING) {
@@ -179,6 +183,7 @@ public class PlayerService extends Service {
                                         Toast.LENGTH_LONG).show();
                             }
                         });
+                        stopSelf();
                     }
                 });
     }
@@ -208,6 +213,8 @@ public class PlayerService extends Service {
         currentState = PlayState.NORMAL;
         destroyPlayHelpers();
         EventBus.getDefault().unregister(this);
+        running = false;
+        EventBus.getDefault().post(new StopPlayEvent());
     }
 
     /**
@@ -251,6 +258,10 @@ public class PlayerService extends Service {
 
     public PlayState getCurrentState() {
         return currentState;
+    }
+
+    public static boolean isRunning() {
+        return running;
     }
 
     @Nullable
