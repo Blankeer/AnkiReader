@@ -39,7 +39,7 @@ public class TtsUtils {
 
     public void speakText(String text) {
         if (textToSpeech != null) {
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null);
         }
     }
 
@@ -48,6 +48,13 @@ public class TtsUtils {
             return textToSpeech.isSpeaking();
         }
         return false;
+    }
+
+    public void shutdown() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
     }
 
     public TextToSpeech getTextToSpeech() {

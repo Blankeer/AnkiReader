@@ -48,8 +48,12 @@ public class NotificationPlayHelper extends BasePlayHelper {
 //        Logger.d("send notification..." + note.getId());
         lastNode = note;
         if (getService() != null && note != null) {
+            CharSequence content = note.getBack();
+            if (playConfig.isTtsUseAll()) {
+                content = note.getSimpleTextWordBack();
+            }
             getService().startForeground(NOTIFICATION_ID,
-                    getNotificationText(note.getFront(), note.getBack()));
+                    getNotificationText(note.getFront(), content));
         }
     }
 

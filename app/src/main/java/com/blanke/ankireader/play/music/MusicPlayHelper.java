@@ -2,15 +2,17 @@ package com.blanke.ankireader.play.music;
 
 import android.app.Service;
 import android.media.MediaPlayer;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.play.BasePlayHelper;
-import com.blanke.ankireader.utils.HtmlUtils;
 import com.blanke.ankireader.utils.TtsUtils;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 /**
  * Created by blanke on 2017/5/14.
@@ -58,11 +60,19 @@ public class MusicPlayHelper extends BasePlayHelper {
 
     //播放 tts
     private void playTTS(Note note) throws InterruptedException {
-        if (playConfig.isTtsUseFront()) {
-            playTTSReal(HtmlUtils.removeAllTags(note.getFront().toString()));
+        if (playConfig.isTtsUseFront() && ttsUtils != null) {
+            ttsUtils.getTextToSpeech().setLanguage(Locale.UK);
+            String word = note.getSimpleTextFront();
+            playTTSReal(word);
+            for (int i = 0; i < word.length(); i++) {
+//                ttsUtils.getTextToSpeech().playSilence(5, TextToSpeech.QUEUE_ADD, null);//停顿
+                ttsUtils.speakText(word.charAt(i) + "");
+            }
+            ttsUtils.getTextToSpeech().playSilence(300, TextToSpeech.QUEUE_ADD, null);
         }
-        if (playConfig.isTtsUseBack()) {
-            playTTSReal(HtmlUtils.removeAllTags(note.getBack().toString()));
+        if (playConfig.isTtsUseBack() && ttsUtils != null) {
+            ttsUtils.getTextToSpeech().setLanguage(Locale.CHINA);
+            playTTSReal(note.getSimpleTextWordBack());
         }
     }
 
@@ -88,6 +98,7 @@ public class MusicPlayHelper extends BasePlayHelper {
         if (ttsUtils == null) {
             return;
         }
+        Log.d("tts", "text=" + text);
         ttsUtils.speakText(text);
         while (ttsUtils != null && ttsUtils.isSpeaking()) {
             Thread.sleep(SLEEP_TIME);
@@ -123,6 +134,9 @@ public class MusicPlayHelper extends BasePlayHelper {
         mediaPlayer.release();
         mediaPlayer = null;
         ttsUtils = null;
+        if (ttsUtils != null) {
+            ttsUtils.shutdown();
+        }
     }
 
 }

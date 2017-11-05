@@ -2,6 +2,7 @@ package com.blanke.ankireader.play.float_text.view;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.Html;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,10 +42,14 @@ public class TextFloatView extends AppCompatTextView implements BaseFloatView {
             @Override
             public void run() {
                 int maxLength = playConfig.getCommonTextLength();
-                if (note.getFullContent().length() > maxLength) {
-                    setText(note.getFullContent().subSequence(0, maxLength) + "...");
+                if (playConfig.isTtsUseAll()) {
+                    setText(Html.fromHtml(note.getFront().toString() + "<br/>" + note.getSimpleTextWordBack()));
                 } else {
-                    setText(note.getFullContent());
+                    if (note.getFullContent().length() > maxLength) {
+                        setText(note.getFullContent().subSequence(0, maxLength) + "...");
+                    } else {
+                        setText(note.getFullContent());
+                    }
                 }
             }
         });

@@ -1,9 +1,14 @@
 package com.blanke.ankireader.bean;
 
 import android.text.Html;
+import android.util.Log;
+
+import com.blanke.ankireader.utils.HtmlUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by on 2016/10/14.
@@ -57,6 +62,35 @@ public class Note {
 
     public CharSequence getFront() {
         return front;
+    }
+
+    public String getSimpleTextFront() {
+        return HtmlUtils.removeAllTags(front.toString()).trim();
+    }
+
+    public String getSimpleTextBack() {
+        return HtmlUtils.removeAllTags(back.toString()).trim();
+    }
+
+    public String getSimpleTextWordBack() {
+        String back = getSimpleTextBack();
+        Log.d("note", back);
+        back = back.replaceAll("英.{0,3}\\[.*?\\].*美.{0,3}\\[.*?\\]", "");//去掉音标
+        back = back.replaceAll("[\\.0-9a-zA-Z\\(\\)\\s]", "");//去掉数字 英文
+        back = back.trim();
+        Pattern r = Pattern.compile("(^.{0,12}[^\\u4e00-\\u9fa5])");// 取出最多前十位,且结尾是非汉字字符
+        Matcher m = r.matcher(back);
+        if (m.find()) {
+            back = m.group(1);
+        } else {
+            if (back.length() > 10) {
+                back = back.substring(0, 10);
+            }
+        }
+        Log.d("note after=", back);
+        back = back.replaceAll("[^\\u4e00-\\u9fa5][^\\u4e00-\\u9fa5.]*$", "");//去掉尾部非汉字字符
+        Log.d("note end=", back);
+        return back;
     }
 
     public void setFront(CharSequence front) {

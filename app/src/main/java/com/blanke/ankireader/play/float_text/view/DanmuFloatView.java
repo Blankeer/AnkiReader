@@ -21,6 +21,7 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
     private int danmuSize = 50;
     private int danmuSpeed = 1;
     private int danmuMaxLength;
+    private PlayConfig playConfig;
 
     public DanmuFloatView(Context context) {
         super(context, null);
@@ -38,6 +39,7 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
 
     @Override
     public void setConfig(PlayConfig playConfig) {
+        this.playConfig = playConfig;
         setBackgroundColor(playConfig.getDanmuBackgroundColor());
         danmuSize = DimensionUtil.spToPx(getContext(), playConfig.getDanmuSize());
         danmuColor = playConfig.getDanmuColor();
@@ -60,12 +62,16 @@ public class DanmuFloatView extends DanMuView implements BaseFloatView {
         danmu.textSize = danmuSize;
         danmu.textColor = danmuColor;
         danmu.setSpeed(danmuSpeed);
-        String text = HtmlUtils.removeAllTags(note.getFront().toString()) + "\n" +
-                HtmlUtils.removeNoBrTags(note.getBack().toString());
-        if (text.length() > danmuMaxLength) {
-            text = text.subSequence(0, danmuMaxLength) + "...";
+        if (playConfig.isTtsUseAll()) {
+            danmu.text = note.getFront().toString() + "\n" + note.getSimpleTextWordBack();
+        } else {
+            String text = HtmlUtils.removeAllTags(note.getFront().toString()) + "\n" +
+                    HtmlUtils.removeNoBrTags(note.getBack().toString());
+            if (text.length() > danmuMaxLength) {
+                text = text.subSequence(0, danmuMaxLength) + "...";
+            }
+            danmu.text = text;
         }
-        danmu.text = text;
         return danmu;
     }
 }
