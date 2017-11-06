@@ -49,4 +49,6 @@ dependencies {
 
     compile 'com.afollestad:drag-select-recyclerview:1.0.0'
     compile 'com.afollestad:material-cab:0.1.12'
+    //android server
+    compile 'com.yanzhenjie:andserver:1.0.3'
 }

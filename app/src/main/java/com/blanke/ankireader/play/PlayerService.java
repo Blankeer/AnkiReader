@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.blanke.ankireader.BuildConfig;
@@ -16,6 +17,7 @@ import com.blanke.ankireader.data.AnkiManager;
 import com.blanke.ankireader.event.PausePlayEvent;
 import com.blanke.ankireader.event.StartPlayEvent;
 import com.blanke.ankireader.event.StopPlayEvent;
+import com.blanke.ankireader.http_server.RequestLoginHandler;
 import com.blanke.ankireader.play.float_text.FloatTextPlayHelper;
 import com.blanke.ankireader.play.float_text.view.BaseFloatView;
 import com.blanke.ankireader.play.float_text.view.DanmuFloatView;
@@ -23,6 +25,9 @@ import com.blanke.ankireader.play.float_text.view.TextFloatView;
 import com.blanke.ankireader.play.music.MusicPlayHelper;
 import com.blanke.ankireader.play.notify.NotificationPlayHelper;
 import com.blanke.ankireader.receiver.HeadsetDetectReceiver;
+import com.yanzhenjie.andserver.AndServer;
+import com.yanzhenjie.andserver.Server;
+import com.yanzhenjie.andserver.website.AssetsWebsite;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,6 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class PlayerService extends Service {
+
 
     public enum PlayState {
         NORMAL,
@@ -61,6 +67,9 @@ public class PlayerService extends Service {
     private HeadsetDetectReceiver headsetDetectReceiver;
 
     private PowerManager.WakeLock wakeLock;
+    public static Note currentNote;
+
+    private Server httpServer;
 
     @Override
     public void onCreate() {
@@ -74,6 +83,35 @@ public class PlayerService extends Service {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(headsetDetectReceiver, intentFilter);
+        initHttpServer();
+    }
+
+    private void initHttpServer() {
+        Server.Listener mListener = new Server.Listener() {
+            @Override
+            public void onStarted() {
+                Log.d("http", "onStarted");
+            }
+
+            @Override
+            public void onStopped() {
+                Log.d("http", "onStopped");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+                Log.e("http", e.getMessage());
+            }
+        };
+        AssetsWebsite website = new AssetsWebsite(getAssets(), "");
+        AndServer andServer = new AndServer.Build()
+                .registerHandler("text", new RequestLoginHandler())
+                .website(website)
+                .listener(mListener)
+                .build();
+        this.httpServer = andServer.createServer();
+        this.httpServer.start();
     }
 
     @Override
@@ -158,6 +196,7 @@ public class PlayerService extends Service {
                 while (currentState == PlayState.PLAYING) {
                     for (int j = 0; j < mPlayConfig.getPlayLoopCount(); j++) {//循环 x 次
                         Note note = notes.get(i);
+                        currentNote = note;
                         e.onNext(note);
                         Thread.sleep(mPlayConfig.getPlayIntervalTime());
                     }
@@ -236,6 +275,9 @@ public class PlayerService extends Service {
         }
         if (wakeLock != null) {
             wakeLock.release();
+        }
+        if (httpServer != null) {
+            httpServer.stop();
         }
     }
 
