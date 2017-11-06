@@ -15,6 +15,8 @@ import com.blanke.ankireader.ui.MainActivity;
 
 import java.lang.ref.WeakReference;
 
+import static android.app.Notification.PRIORITY_MAX;
+import static android.app.Notification.VISIBILITY_PUBLIC;
 import static com.blanke.ankireader.play.PlayerService.ACTION_EXIT;
 import static com.blanke.ankireader.play.PlayerService.ACTION_TOGGLE_PLAY_PAUSE;
 
@@ -92,6 +94,9 @@ public class NotificationPlayHelper extends BasePlayHelper {
         builder.setAutoCancel(false);
         builder.setOngoing(true);
         builder.setShowWhen(false);
+        builder.setWhen(0);
+        builder.setVisibility(VISIBILITY_PUBLIC);
+        builder.setPriority(PRIORITY_MAX);
         PendingIntent mPlayPauseIntent = getIntent(ACTION_TOGGLE_PLAY_PAUSE);
         int playPauseIcon = R.drawable.ic_play;
         String info = "开始";
