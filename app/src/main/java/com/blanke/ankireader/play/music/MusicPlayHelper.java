@@ -61,7 +61,7 @@ public class MusicPlayHelper extends BasePlayHelper {
     //播放 tts
     private void playTTS(Note note) throws InterruptedException {
         if (playConfig.isTtsUseFront() && ttsUtils != null) {
-            ttsUtils.getTextToSpeech().setLanguage(Locale.UK);
+            ttsUtils.getTextToSpeech().setLanguage(Locale.US);
             String word = note.getSimpleTextFront();
             playTTSReal(word);
             for (int i = 0; i < word.length(); i++) {
