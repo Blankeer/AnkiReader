@@ -2,6 +2,7 @@ package com.blanke.ankireader.play;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.blanke.ankireader.play.float_text.view.DanmuFloatView;
 import com.blanke.ankireader.play.float_text.view.TextFloatView;
 import com.blanke.ankireader.play.music.MusicPlayHelper;
 import com.blanke.ankireader.play.notify.NotificationPlayHelper;
+import com.blanke.ankireader.receiver.HeadsetDetectReceiver;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,6 +38,7 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class PlayerService extends Service {
+
     public enum PlayState {
         NORMAL,
         PLAYING,
@@ -53,6 +56,7 @@ public class PlayerService extends Service {
     private FloatTextPlayHelper floatTextPlayHelper;
     private Handler handler;
     private static boolean running = false;
+    private HeadsetDetectReceiver headsetDetectReceiver;
 
     @Override
     public void onCreate() {
@@ -60,6 +64,10 @@ public class PlayerService extends Service {
         handler = new Handler();
         EventBus.getDefault().register(this);
         running = true;
+        headsetDetectReceiver = new HeadsetDetectReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(headsetDetectReceiver, intentFilter);
     }
 
     @Override
@@ -215,6 +223,10 @@ public class PlayerService extends Service {
         EventBus.getDefault().unregister(this);
         running = false;
         EventBus.getDefault().post(new StopPlayEvent());
+        if (headsetDetectReceiver != null) {
+            unregisterReceiver(headsetDetectReceiver);
+            headsetDetectReceiver = null;
+        }
     }
 
     /**
