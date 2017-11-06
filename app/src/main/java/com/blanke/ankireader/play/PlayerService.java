@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import com.blanke.ankireader.BuildConfig;
 import com.blanke.ankireader.bean.Note;
 import com.blanke.ankireader.config.PlayConfig;
 import com.blanke.ankireader.data.AnkiManager;
@@ -58,12 +60,16 @@ public class PlayerService extends Service {
     private static boolean running = false;
     private HeadsetDetectReceiver headsetDetectReceiver;
 
+    private PowerManager.WakeLock wakeLock;
+
     @Override
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
         EventBus.getDefault().register(this);
         running = true;
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BuildConfig.APPLICATION_ID);
         headsetDetectReceiver = new HeadsetDetectReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
@@ -131,6 +137,7 @@ public class PlayerService extends Service {
             return;
         }
         currentState = PlayState.PLAYING;
+        wakeLock.acquire();
         Observable.create(new ObservableOnSubscribe<Note>() {
 
             @Override
@@ -226,6 +233,9 @@ public class PlayerService extends Service {
         if (headsetDetectReceiver != null) {
             unregisterReceiver(headsetDetectReceiver);
             headsetDetectReceiver = null;
+        }
+        if (wakeLock != null) {
+            wakeLock.release();
         }
     }
 
