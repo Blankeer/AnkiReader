@@ -77,6 +77,7 @@ public class FloatTextPlayHelper extends BasePlayHelper {
         }
         windowManager = (WindowManager) getService().getSystemService(WINDOW_SERVICE);
         View view = (View) floatView;
+        view.setKeepScreenOn(true);
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.type = WindowManager.LayoutParams.TYPE_PHONE;
         params.format = PixelFormat.RGBA_8888;
