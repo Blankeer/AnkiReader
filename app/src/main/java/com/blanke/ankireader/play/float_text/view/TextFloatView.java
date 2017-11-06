@@ -85,10 +85,10 @@ public class TextFloatView extends AppCompatTextView implements BaseFloatView {
                     if (downCount == 1) {
                         lastDownTime = nowTime;
                     } else if (downCount == 2) {//双击事件
-                        onDoubleClick();
                         if (nowTime - lastDownTime < 600) {
                             lastDownTime = 0;
                             downCount = 0;
+                            onDoubleClick();
                         } else {
                             downCount = 1;
                             lastDownTime = nowTime;
